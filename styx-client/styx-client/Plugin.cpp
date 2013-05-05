@@ -1,12 +1,3 @@
-/*
-Miranda NG plugin template
-http://miranda-ng.org/
-
-This file is placed in the public domain. Anybody is free to use or
-modify it as they wish with no restriction.
-There is no warranty.
-*/
-
 #include <windows.h>
 #include <tchar.h>
 
@@ -20,18 +11,15 @@ int hLangpack;
 
 PLUGININFOEX pluginInfo = {
 	sizeof(PLUGININFOEX),
-	"Plugin Template",
-	PLUGIN_MAKE_VERSION(0,0,0,2),
-	"The long description of your plugin, to go in the plugin options dialog",
-	"J. Random Hacker",
-	"noreply@sourceforge.net",
-	"© 2002 J. Random Hacker",
-	"http://miranda-ng.org/",
-	UNICODE_AWARE,		//not transient
-	// Generate your own unique id for your plugin.
-	// Do not use this UUID!
-	// Use uuidgen.exe to generate the uuuid
-	{0x8b86253, 0xec6e, 0x4d09, { 0xb7, 0xa9, 0x64, 0xac, 0xdf, 0x6, 0x27, 0xb8 }} //{08B86253-EC6E-4d09-B7A9-64ACDF0627B8}
+	"Styx History Synchronizer",
+	PLUGIN_MAKE_VERSION(0, 0, 0, 1),
+	"History synchronizer with dedicated server.",
+	"F. von Never",
+	"neverthness@gmail.com",
+	"© 2013 F. von Never",
+	"https://github.com/ForNeVeR",
+	UNICODE_AWARE,
+	{ 0xf38aa380, 0x2267, 0x4ff7, { 0x9b, 0x19, 0xae, 0x96, 0x6b, 0xac, 0x49, 0xd8 } } // {F38AA380-2267-4FF7-9B19-AE966BAC49D8}
 };
 
 BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpvReserved)
