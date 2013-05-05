@@ -1,6 +1,9 @@
 styx-client/protobuf-2.5.0/vsprojects/Debug
+styx-client/protobuf-2.5.0/vsprojects/x64
 styx-client/styx-client/Debug
+styx-client/styx-client/x64
 styx-client/Debug
+styx-client/x64
 styx-client/styx-client/*.pb.*
 styx-server/.idea
 styx-server/.idea_modules
