@@ -1,0 +1,13 @@
+styx-client/protobuf-2.5.0/vsprojects/Debug
+styx-client/styx-client/Debug
+styx-client/Debug
+styx-client/styx-client/*.pb.*
+styx-server/.idea
+styx-server/.idea_modules
+styx-server/src/main/java
+styx-server/project/target
+styx-server/target
+*.opensdf
+*.sdf
+*.suo
+*.vcxproj.user

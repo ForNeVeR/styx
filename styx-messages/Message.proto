@@ -1,0 +1,5 @@
+package ru.org.codingteam.styx;
+
+message Ping {
+	required string message = 1;
+}
