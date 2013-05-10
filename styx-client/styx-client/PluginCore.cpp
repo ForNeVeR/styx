@@ -2,6 +2,7 @@
 
 #include <m_langpack.h>
 #include <m_clist.h>
+#include <m_database.h>
 #include <m_skin.h>
 
 const auto EnableServiceName = "Styx/EnableCommand";
@@ -32,7 +33,7 @@ void PluginCore::InitializeLangpack()
 	mir_getLP(&_pluginInfo);
 }
 
-INT_PTR EnableCommand(WPARAM wParam, LPARAM lParam)
+INT_PTR EnableServiceFunction(void *core, LPARAM param1, LPARAM param2)
 {
 	// TODO: Enable synchronization if not enabled.
 	return 0;
@@ -40,7 +41,7 @@ INT_PTR EnableCommand(WPARAM wParam, LPARAM lParam)
 
 void PluginCore::InitializeMainMenu()
 {
-	CreateServiceFunction(EnableServiceName, &EnableCommand);
+	CreateServiceFunctionObj(EnableServiceName, &EnableServiceFunction, this);
 
 	auto mi = CLISTMENUITEM();
 	mi.cbSize = sizeof(mi);
@@ -53,7 +54,35 @@ void PluginCore::InitializeMainMenu()
 	Menu_AddMainMenuItem(&mi);
 }
 
+int EventAddedHook(void *core, WPARAM wParam, LPARAM lParam)
+{
+	auto hDbEvent = reinterpret_cast<HANDLE>(lParam);
+
+	auto eventInfo = DBEVENTINFO();
+	CallService(MS_DB_EVENT_GET, reinterpret_cast<WPARAM>(hDbEvent), reinterpret_cast<LPARAM>(&eventInfo));
+
+	if (eventInfo.eventType != EVENTTYPE_MESSAGE)
+	{
+		// We handle only messages here.
+		return 0;
+	}
+
+	auto messageTime = eventInfo.timestamp;
+	// TODO: Get message text through "DB/Event/GetText".
+	
+	if (eventInfo.flags & DBEF_SENT)
+	{
+		// TODO: Handle sent message.
+	}
+	else
+	{
+		// TODO: Handle received message.
+	}
+
+	return 0;
+}
+
 void PluginCore::InitializeHooks()
 {
-
+	HookEventObj(ME_DB_EVENT_ADDED, EventAddedHook, this);
 }
