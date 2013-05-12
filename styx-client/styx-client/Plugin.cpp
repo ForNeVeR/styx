@@ -1,6 +1,7 @@
 #include "PluginCore.h"
 
-PLUGININFOEX pluginInfo = {
+PLUGININFOEX pluginInfo =
+{
 	sizeof(PLUGININFOEX),
 	"Styx History Synchronizer",
 	PLUGIN_MAKE_VERSION(0, 0, 0, 1),
@@ -34,12 +35,12 @@ extern "C" __declspec(dllexport) const MUUID interfaces[] = { MIID_LAST };
 
 extern "C" __declspec(dllexport) int Load()
 {
-	Core.initialize();
+	Core.Initialize();
 	return 0;
 }
 
 extern "C" __declspec(dllexport) int Unload(void)
 {
-	Core.deinitialize();
+	Core.Deinitialize();
 	return 0;
 }

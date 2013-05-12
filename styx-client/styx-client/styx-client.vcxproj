@@ -151,7 +151,8 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="Message.pb.cc" />
+    <ClCompile Include="Datagram.pb.cc" />
+    <ClCompile Include="MirandaContact.cpp" />
     <ClCompile Include="Plugin.cpp" />
     <ClCompile Include="PluginCore.cpp" />
     <ClCompile Include="Source.cpp" />
@@ -160,7 +161,9 @@
     <ClCompile Include="WsaSocket.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Message.pb.h" />
+    <ClInclude Include="Datagram.pb.h" />
+    <ClInclude Include="MemoryUtils.h" />
+    <ClInclude Include="MirandaContact.h" />
     <ClInclude Include="PluginCore.h" />
     <ClInclude Include="WsaException.h" />
     <ClInclude Include="WsaInit.h" />

@@ -1,11 +1,18 @@
 #include "PluginCore.h"
 
+#include <memory>
 #include <string>
 
 #include <m_langpack.h>
 #include <m_clist.h>
 #include <m_database.h>
 #include <m_skin.h>
+
+#include "Datagram.pb.h"
+#include "MemoryUtils.h"
+#include "MirandaContact.h"
+
+using namespace ru::org::codingteam::styx;
 
 const auto EnableServiceName = "Styx/EnableCommand";
 
@@ -18,16 +25,32 @@ PluginCore::~PluginCore()
 {
 }
 
-void PluginCore::initialize()
+void PluginCore::Initialize()
 {
 	InitializeLangpack();
 	InitializeMainMenu();
 	InitializeHooks();
 }
 
-void PluginCore::deinitialize()
+void PluginCore::Deinitialize()
 {
-	// TODO: Disable synchronization if enabled.
+	DisableSynchronization();
+}
+
+void PluginCore::EnableSynchronization()
+{
+	if (!_isSynchronizationEnabled)
+	{
+		// TODO: Start server thread.
+	}
+}
+
+void PluginCore::DisableSynchronization()
+{
+	if (_isSynchronizationEnabled)
+	{
+		// TODO: Stop server thread.
+	}
 }
 
 void PluginCore::InitializeLangpack()
@@ -35,15 +58,16 @@ void PluginCore::InitializeLangpack()
 	mir_getLP(&_pluginInfo);
 }
 
-INT_PTR EnableServiceFunction(void *core, LPARAM param1, LPARAM param2)
-{
-	// TODO: Enable synchronization if not enabled.
-	return 0;
-}
-
 void PluginCore::InitializeMainMenu()
 {
-	CreateServiceFunctionObj(EnableServiceName, &EnableServiceFunction, this);
+	auto enableService = [](void *corePointer, LPARAM param1, LPARAM param2) -> INT_PTR
+	{
+		auto core = static_cast<PluginCore*>(corePointer);
+		core->EnableSynchronization();
+		return 0;
+	};
+
+	CreateServiceFunctionObj(EnableServiceName, enableService, this);
 
 	auto mi = CLISTMENUITEM();
 	mi.cbSize = sizeof(mi);
@@ -56,37 +80,38 @@ void PluginCore::InitializeMainMenu()
 	Menu_AddMainMenuItem(&mi);
 }
 
-int EventAddedHook(void *core, WPARAM wParam, LPARAM lParam)
-{
-	auto hDbEvent = reinterpret_cast<HANDLE>(lParam);
-
-	auto eventInfo = DBEVENTINFO();
-	CallService(MS_DB_EVENT_GET, reinterpret_cast<WPARAM>(hDbEvent), reinterpret_cast<LPARAM>(&eventInfo));
-
-	if (eventInfo.eventType != EVENTTYPE_MESSAGE)
-	{
-		// We handle only messages here.
-		return 0;
-	}
-
-	auto messageTime = eventInfo.timestamp;
-	auto wText = DbGetEventTextW(&eventInfo, 0);
-	auto text = std::wstring(wText);
-	mir_free(wText);
-	
-	if (eventInfo.flags & DBEF_SENT)
-	{
-		// TODO: Handle sent message.
-	}
-	else
-	{
-		// TODO: Handle received message.
-	}
-
-	return 0;
-}
-
 void PluginCore::InitializeHooks()
 {
-	HookEventObj(ME_DB_EVENT_ADDED, EventAddedHook, this);
+	auto onEventAdded = [](void *corePointer, WPARAM wParam, LPARAM lParam) -> int
+	{
+		auto core = static_cast<PluginCore*>(corePointer);
+		auto contactHandle = reinterpret_cast<HANDLE>(wParam);
+		auto dbEventHandle = reinterpret_cast<HANDLE>(lParam);
+
+		auto eventInfo = DBEVENTINFO();
+		CallService(MS_DB_EVENT_GET, reinterpret_cast<WPARAM>(dbEventHandle), reinterpret_cast<LPARAM>(&eventInfo));
+
+		if (eventInfo.eventType != EVENTTYPE_MESSAGE)
+		{
+			// We handle only messages here.
+			return 0;
+		}
+
+		auto protocol = eventInfo.szModule;
+		auto contact = MirandaContact::GetUID(contactHandle);
+		auto wText = MemoryUtils::MakeUniquePtr(DbGetEventTextW(&eventInfo, 0), mir_free);
+		auto direction = eventInfo.flags & DBEF_SENT ? Message_Direction_OUTGOING : Message_Direction_INCOMING;
+
+		auto message = Message();
+		message.set_protocol(eventInfo.szModule);
+		// TODO: Encode as UTF-8: message.set_user_id(contact);
+		// TODO: Encode as UTF-8: message.set_text(wText)
+		message.set_direction(direction);
+
+		// TODO: Send message instance to the server.
+
+		return 0;
+	};
+
+	HookEventObj(ME_DB_EVENT_ADDED, onEventAdded, this);
 }

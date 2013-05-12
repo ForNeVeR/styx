@@ -6,7 +6,7 @@
 #include "WsaInit.h"
 #include "WsaSocket.h"
 
-#include "Message.pb.h"
+#include "Datagram.pb.h"
 
 using namespace ru::org::codingteam::styx;
 
@@ -38,12 +38,10 @@ void start()
 	WsaSocket socket(result->ai_family, result->ai_socktype, result->ai_protocol);
 	socket.connect(*result);
 
-	auto p = Ping();
-	p.set_message("10005");	
-	socket.send(p.SerializeAsString());
-
-	p.set_message(std::string(10240, 'x'));
-	socket.send(p.SerializeAsString());
+	auto m = Message();
+	m.set_protocol("text");
+	m.set_user_id("null");
+	m.set_text("ping");
 	
 	std::cout << "Data sent successfully" << std::endl;
 }

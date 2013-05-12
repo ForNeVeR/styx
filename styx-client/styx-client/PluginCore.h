@@ -11,8 +11,11 @@ public:
 	PluginCore(PLUGININFOEX &pluginInfo);
 	~PluginCore();
 	
-	void initialize();
-	void deinitialize();
+	void Initialize();
+	void Deinitialize();
+
+	void EnableSynchronization();
+	void DisableSynchronization();
 
 private:
 	void InitializeLangpack();
@@ -20,5 +23,6 @@ private:
 	void InitializeHooks();
 
 	PLUGININFOEX &_pluginInfo;
+	bool _isSynchronizationEnabled;
 };
 
