@@ -13,6 +13,7 @@ public:
 	
 	void initialize();
 	void deinitialize();
+
 private:
 	void InitializeLangpack();
 	void InitializeMainMenu();

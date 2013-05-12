@@ -1,5 +1,7 @@
 #include "PluginCore.h"
 
+#include <string>
+
 #include <m_langpack.h>
 #include <m_clist.h>
 #include <m_database.h>
@@ -68,7 +70,9 @@ int EventAddedHook(void *core, WPARAM wParam, LPARAM lParam)
 	}
 
 	auto messageTime = eventInfo.timestamp;
-	// TODO: Get message text through "DB/Event/GetText".
+	auto wText = DbGetEventTextW(&eventInfo, 0);
+	auto text = std::wstring(wText);
+	mir_free(wText);
 	
 	if (eventInfo.flags & DBEF_SENT)
 	{
