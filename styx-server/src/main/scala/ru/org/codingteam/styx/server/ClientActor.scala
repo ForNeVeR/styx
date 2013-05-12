@@ -3,8 +3,8 @@ package ru.org.codingteam.styx.server
 import akka.actor.{Actor, ActorLogging}
 import akka.util.ByteString
 import akka.actor.IO.{SocketHandle, Closed, Read}
-import ru.org.codingteam.styx.Message.Ping
 import com.google.protobuf.{InvalidProtocolBufferException, CodedInputStream}
+import ru.org.codingteam.styx.Datagram.Message
 
 class ClientActor extends Actor with ActorLogging {
 
@@ -31,9 +31,8 @@ class ClientActor extends Actor with ActorLogging {
 	def tryDeserialize() {
 		val stream = CodedInputStream.newInstance(buffer.toArray)
 		try {
-			val result = Ping.parseFrom(stream)
-			val message = result.getMessage
-			log.info(s"Received ping message: $message")
+			val result = Message.parseFrom(stream)
+			log.info(s"Received message: $result")
 
 			buffer = buffer.drop(stream.getTotalBytesRead)
 			val length = buffer.length

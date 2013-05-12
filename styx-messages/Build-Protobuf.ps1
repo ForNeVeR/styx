@@ -15,4 +15,4 @@ protoc `
 	"-I=$source" `
 	--java_out=$javaTarget `
 	--cpp_out=$cppTarget `
-	$source/Message.proto
+	$source/Datagram.proto

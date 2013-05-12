@@ -1,0 +1,13 @@
+package ru.org.codingteam.styx;
+
+message Message {
+	enum Direction {
+		INCOMING = 1;
+		OUTGOING = 2;
+	}
+
+	required string protocol = 1;
+	required string user_id = 2;
+	required string text = 3;
+	required Direction direction = 4;
+}
