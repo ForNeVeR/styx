@@ -156,6 +156,7 @@
     <ClCompile Include="Plugin.cpp" />
     <ClCompile Include="PluginCore.cpp" />
     <ClCompile Include="Source.cpp" />
+    <ClCompile Include="StringUtils.cpp" />
     <ClCompile Include="WsaException.cpp" />
     <ClCompile Include="WsaInit.cpp" />
     <ClCompile Include="WsaSocket.cpp" />
@@ -165,6 +166,7 @@
     <ClInclude Include="MemoryUtils.h" />
     <ClInclude Include="MirandaContact.h" />
     <ClInclude Include="PluginCore.h" />
+    <ClInclude Include="StringUtils.h" />
     <ClInclude Include="WsaException.h" />
     <ClInclude Include="WsaInit.h" />
     <ClInclude Include="WsaSocket.h" />
