@@ -1,3 +1,4 @@
+#include "WindowsIncludes.h"
 #include "PluginCore.h"
 
 PLUGININFOEX pluginInfo =

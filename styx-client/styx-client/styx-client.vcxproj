@@ -151,22 +151,24 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Connector.cpp" />
     <ClCompile Include="Datagram.pb.cc" />
     <ClCompile Include="MirandaContact.cpp" />
     <ClCompile Include="Plugin.cpp" />
     <ClCompile Include="PluginCore.cpp" />
-    <ClCompile Include="Source.cpp" />
     <ClCompile Include="StringUtils.cpp" />
     <ClCompile Include="WsaException.cpp" />
     <ClCompile Include="WsaInit.cpp" />
     <ClCompile Include="WsaSocket.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Connector.h" />
     <ClInclude Include="Datagram.pb.h" />
     <ClInclude Include="MemoryUtils.h" />
     <ClInclude Include="MirandaContact.h" />
     <ClInclude Include="PluginCore.h" />
     <ClInclude Include="StringUtils.h" />
+    <ClInclude Include="WindowsIncludes.h" />
     <ClInclude Include="WsaException.h" />
     <ClInclude Include="WsaInit.h" />
     <ClInclude Include="WsaSocket.h" />

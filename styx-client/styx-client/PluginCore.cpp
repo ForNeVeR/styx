@@ -8,6 +8,7 @@
 #include <m_database.h>
 #include <m_skin.h>
 
+#include "Connector.h"
 #include "Datagram.pb.h"
 #include "MemoryUtils.h"
 #include "MirandaContact.h"
@@ -17,12 +18,13 @@ using namespace ru::org::codingteam::styx;
 const auto EnableServiceName = "Styx/EnableCommand";
 
 PluginCore::PluginCore(PLUGININFOEX &pluginInfo)
-	: _pluginInfo(pluginInfo)
+	: _pluginInfo(pluginInfo), _isSynchronizationEnabled(false), _connector(new Connector())
 {
 }
 
 PluginCore::~PluginCore()
 {
+	DisableSynchronization();
 }
 
 void PluginCore::Initialize()
@@ -41,7 +43,8 @@ void PluginCore::EnableSynchronization()
 {
 	if (!_isSynchronizationEnabled)
 	{
-		// TODO: Start server thread.
+		_connector->start();
+		_isSynchronizationEnabled = true;
 	}
 }
 
@@ -49,7 +52,8 @@ void PluginCore::DisableSynchronization()
 {
 	if (_isSynchronizationEnabled)
 	{
-		// TODO: Stop server thread.
+		_connector->stop();
+		_isSynchronizationEnabled = false;
 	}
 }
 

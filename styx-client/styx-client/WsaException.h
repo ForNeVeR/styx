@@ -1,7 +1,8 @@
+#pragma once
+
 #include <exception>
 #include <string>
 
-#pragma once
 class WsaException : public std::exception
 {
 public:

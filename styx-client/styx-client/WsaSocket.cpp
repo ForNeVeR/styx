@@ -11,7 +11,7 @@ WsaSocket::WsaSocket(int family, int type, int protocol)
 	}
 }
 
-WsaSocket::~WsaSocket(void)
+WsaSocket::~WsaSocket()
 {
 	if (_connected)
 	{

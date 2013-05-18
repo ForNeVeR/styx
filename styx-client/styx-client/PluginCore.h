@@ -1,9 +1,12 @@
 #pragma once
 
-#include <windows.h>
-#include <tchar.h>
+#include <memory>
+
+#include "WindowsIncludes.h"
 
 #include <newpluginapi.h>
+
+class Connector;
 
 class PluginCore
 {
@@ -24,5 +27,6 @@ private:
 
 	PLUGININFOEX &_pluginInfo;
 	bool _isSynchronizationEnabled;
+	std::unique_ptr<Connector> _connector;
 };
 

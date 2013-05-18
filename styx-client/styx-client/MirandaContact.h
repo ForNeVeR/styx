@@ -2,7 +2,7 @@
 
 #include <string>
 
-#include <windows.h>
+#include "WindowsIncludes.h"
 
 struct MirandaContact
 {
