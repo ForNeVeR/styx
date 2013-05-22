@@ -12,6 +12,7 @@
 #include "Datagram.pb.h"
 #include "MemoryUtils.h"
 #include "MirandaContact.h"
+#include "StringUtils.h"
 
 using namespace ru::org::codingteam::styx;
 
@@ -108,8 +109,8 @@ void PluginCore::InitializeHooks()
 
 		auto message = Message();
 		message.set_protocol(eventInfo.szModule);
-		// TODO: Encode as UTF-8: message.set_user_id(contact);
-		// TODO: Encode as UTF-8: message.set_text(wText)
+		message.set_user_id(StringUtils::EncodeAsUTF8(contact));
+		message.set_text(StringUtils::EncodeAsUTF8(std::wstring(wText.get())));
 		message.set_direction(direction);
 
 		// TODO: Send message instance to the server.
