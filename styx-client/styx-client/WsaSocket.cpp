@@ -38,7 +38,21 @@ void WsaSocket::send(const char *bytes, int length)
 	}
 }
 
+void WsaSocket::send(std::uint32_t data)
+{
+	const auto size = sizeof(std::uint32_t);
+	char buffer[4] = {};
+	auto networkOrderData = static_cast<std::uint32_t>(::htonl(data));
+	::memcpy(buffer, &networkOrderData, size);
+	send(buffer, size);
+}
+
 void WsaSocket::send(const std::string &string)
 {
 	send(string.c_str(), string.length());
+}
+
+SOCKET WsaSocket::handle() const
+{
+	return _socket;
 }

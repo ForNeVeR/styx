@@ -1,5 +1,6 @@
 #pragma once
 
+#include <cstdint>
 #include <string>
 
 #include "WindowsIncludes.h"
@@ -12,7 +13,10 @@ public:
 
 	void connect(addrinfo &address);
 	void send(const char *bytes, int length);
+	void send(std::uint32_t data);
 	void send(const std::string &string);
+
+	SOCKET handle() const;
 
 private:
 	SOCKET _socket;

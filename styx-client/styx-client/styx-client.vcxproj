@@ -157,6 +157,7 @@
     <ClCompile Include="Plugin.cpp" />
     <ClCompile Include="PluginCore.cpp" />
     <ClCompile Include="StringUtils.cpp" />
+    <ClCompile Include="WsaEvent.cpp" />
     <ClCompile Include="WsaException.cpp" />
     <ClCompile Include="WsaInit.cpp" />
     <ClCompile Include="WsaSocket.cpp" />
@@ -169,6 +170,7 @@
     <ClInclude Include="PluginCore.h" />
     <ClInclude Include="StringUtils.h" />
     <ClInclude Include="WindowsIncludes.h" />
+    <ClInclude Include="WsaEvent.h" />
     <ClInclude Include="WsaException.h" />
     <ClInclude Include="WsaInit.h" />
     <ClInclude Include="WsaSocket.h" />

@@ -42,6 +42,9 @@
     <ClCompile Include="Connector.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="WsaEvent.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="WsaInit.h">
@@ -72,6 +75,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="WindowsIncludes.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="WsaEvent.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

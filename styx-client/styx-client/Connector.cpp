@@ -2,10 +2,14 @@
 
 #include <exception>
 
+#include "Datagram.pb.h"
 #include "MemoryUtils.h"
+#include "WsaEvent.h"
 #include "WsaException.h"
 #include "WsaInit.h"
 #include "WsaSocket.h"
+
+using namespace ru::org::codingteam::styx;
 
 Connector::Connector()
 	: _started(false), _threadId(0)
@@ -65,12 +69,25 @@ DWORD Connector::loop(LPVOID self)
 	auto connector = static_cast<Connector*>(self);
 	auto init = WsaInit();
 	auto address = connector->GetServerAddress();
-	WsaSocket socket(address->ai_family, address->ai_socktype, address->ai_protocol);
+	auto socket = WsaSocket(address->ai_family, address->ai_socktype, address->ai_protocol);
 	socket.connect(*address);
-
+	auto event = WsaEvent();
+	auto socketHandle = socket.handle();
+	auto eventHandle = event.handle();
+	WSAEventSelect(socketHandle, eventHandle, FD_WRITE | FD_READ | FD_CLOSE);
+	
 	while (true)
 	{
-		// TODO: Read from socket or wait for some event.
-		Sleep(1000);
+		auto waitResult = WaitForMultipleObjects(1, &eventHandle, false, INFINITE); // TODO: Wait for local events (i.e. new message in the queue).
+		if (waitResult != WAIT_OBJECT_0)
+		{
+			throw std::exception("Wait failed");
+		}
+
+		auto message = Message(); // TODO: Get message from the local queue.
+		auto size = message.ByteSize();
+
+		socket.send(size);
+		socket.send(message.SerializeAsString());
 	}
 }
