@@ -9,8 +9,6 @@ import java.nio.ByteBuffer
 
 class ClientActor extends Actor with ActorLogging {
 
-	var buffer = ByteString()
-
 	def receive = {
 		case Read(socket, bytes) =>
 			log.info("Received incoming data from socket")
@@ -21,12 +19,15 @@ class ClientActor extends Actor with ActorLogging {
 			context.stop(self)
 	}
 
+	private var buffer = ByteString()
+
+	private def dataLength = ByteBuffer.wrap(buffer.take(4).toArray).getInt
+
 	private def receiveBytes(bytes: ByteString) {
 		buffer = buffer ++ bytes
 		val length = buffer.length
 		log.info(s"Buffer length = $length bytes")
 		if (length >= 4) {
-			val dataLength = ByteBuffer.wrap(buffer.take(4).toArray).getInt
 			log.info(s"Data length = $dataLength bytes")
 		    if (length >= dataLength + 4) {
 			    tryDeserialize()
@@ -35,11 +36,12 @@ class ClientActor extends Actor with ActorLogging {
 	}
 
 	private def tryDeserialize() {
-		val stream = CodedInputStream.newInstance(buffer.drop(4).toArray)
+		val dataLength = dataLength
+		val stream = CodedInputStream.newInstance(buffer.drop(4).take(dataLength).toArray)
 		val result = Message.parseFrom(stream)
 		log.info(s"Received message: $result")
 
-		buffer = buffer.drop(stream.getTotalBytesRead)
+		buffer = buffer.drop(4 + dataLength)
 		val length = buffer.length
 		log.info(s"Remaining $length bytes")
 	}
