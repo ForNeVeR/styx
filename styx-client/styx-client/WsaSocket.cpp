@@ -41,10 +41,14 @@ void WsaSocket::send(const char *bytes, int length)
 void WsaSocket::send(std::uint32_t data)
 {
 	const auto size = sizeof(std::uint32_t);
-	char buffer[4] = {};
-	auto networkOrderData = static_cast<std::uint32_t>(::htonl(data));
-	::memcpy(buffer, &networkOrderData, size);
-	send(buffer, size);
+	union
+	{
+		std::uint32_t data;
+		char bytes[size];
+	} converter;
+
+	converter.data = static_cast<std::uint32_t>(::htonl(data));
+	send(converter.bytes, size);
 }
 
 void WsaSocket::send(const std::string &string)
