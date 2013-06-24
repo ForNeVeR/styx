@@ -5,6 +5,7 @@ import akka.util.ByteString
 import akka.actor.IO.{SocketHandle, Closed, Read}
 import com.google.protobuf.{InvalidProtocolBufferException, CodedInputStream}
 import ru.org.codingteam.styx.Datagram.Message
+import java.nio.ByteBuffer
 
 class ClientActor extends Actor with ActorLogging {
 
@@ -20,26 +21,26 @@ class ClientActor extends Actor with ActorLogging {
 			context.stop(self)
 	}
 
-	def receiveBytes(bytes: ByteString) {
+	private def receiveBytes(bytes: ByteString) {
 		buffer = buffer ++ bytes
 		val length = buffer.length
 		log.info(s"Buffer length = $length bytes")
-
-		tryDeserialize()
+		if (length >= 4) {
+			val dataLength = ByteBuffer.wrap(buffer.take(4).toArray).getInt
+			log.info(s"Data length = $dataLength bytes")
+		    if (length >= dataLength + 4) {
+			    tryDeserialize()
+		    }
+		}
 	}
 
-	def tryDeserialize() {
-		val stream = CodedInputStream.newInstance(buffer.toArray)
-		try {
-			val result = Message.parseFrom(stream)
-			log.info(s"Received message: $result")
+	private def tryDeserialize() {
+		val stream = CodedInputStream.newInstance(buffer.drop(4).toArray)
+		val result = Message.parseFrom(stream)
+		log.info(s"Received message: $result")
 
-			buffer = buffer.drop(stream.getTotalBytesRead)
-			val length = buffer.length
-			log.info(s"Remaining $length bytes")
-		} catch {
-			case error: InvalidProtocolBufferException =>
-				log.error(error, "Possible unfinished message")
-		}
+		buffer = buffer.drop(stream.getTotalBytesRead)
+		val length = buffer.length
+		log.info(s"Remaining $length bytes")
 	}
 }
