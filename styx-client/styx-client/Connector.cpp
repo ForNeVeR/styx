@@ -2,17 +2,18 @@
 
 #include <exception>
 
-#include "Datagram.pb.h"
 #include "MemoryUtils.h"
 #include "WsaEvent.h"
 #include "WsaException.h"
 #include "WsaInit.h"
-#include "WsaSocket.h"
 
 using namespace ru::org::codingteam::styx;
 
 Connector::Connector()
-	: _started(false), _threadId(0)
+	: _started(false),
+	_threadId(0),
+	_queueEventHandle(::CreateEventW(nullptr, true, false, L"ConnectorQueueEvent")),
+	_messageQueue()
 {
 }
 
@@ -36,6 +37,12 @@ void Connector::stop()
 	{
 		// TODO: send signal to the thread.
 	}
+}
+
+void Connector::queueMessage(const Message &message)
+{
+	_messageQueue.push(message);
+	::SetEvent(_queueEventHandle);
 }
 
 std::unique_ptr<addrinfo, decltype(&freeaddrinfo)> Connector::GetServerAddress()
@@ -76,18 +83,39 @@ DWORD Connector::loop(LPVOID self)
 	auto eventHandle = event.handle();
 	WSAEventSelect(socketHandle, eventHandle, FD_WRITE | FD_READ | FD_CLOSE);
 	
-	while (true)
+	while (true) // TODO: Find the way to stop the thread.
 	{
-		auto waitResult = WaitForMultipleObjects(1, &eventHandle, false, INFINITE); // TODO: Wait for local events (i.e. new message in the queue).
-		if (waitResult != WAIT_OBJECT_0)
+		HANDLE events[] = { connector->_queueEventHandle, eventHandle };
+		auto waitResult = WaitForMultipleObjects(sizeof(events), events, false, INFINITE); // TODO: Wait for local events (i.e. new message in the queue).
+		switch (waitResult)
 		{
+		case WAIT_OBJECT_0:
+			connector->sendMessage(socket);
+			break;
+		case WAIT_OBJECT_0 + 1:
+			connector->receiveData(socket);
+			break;
+		default:
 			throw std::exception("Wait failed");
 		}
-
-		auto message = Message(); // TODO: Get message from the local queue.
-		auto size = message.ByteSize();
-
-		socket.send(size);
-		socket.send(message.SerializeAsString());
 	}
+}
+
+void Connector::sendMessage(WsaSocket &socket)
+{
+	Message message;
+	if (!_messageQueue.try_pop(message))
+	{
+		return;
+	}
+
+	auto size = message.ByteSize();
+
+	socket.send(size);
+	socket.send(message.SerializeAsString());
+}
+
+void Connector::receiveData(WsaSocket &socket)
+{
+	// TODO: Receive data from server.
 }

@@ -153,6 +153,7 @@
   <ItemGroup>
     <ClCompile Include="Connector.cpp" />
     <ClCompile Include="Datagram.pb.cc" />
+    <ClCompile Include="Handle.cpp" />
     <ClCompile Include="MirandaContact.cpp" />
     <ClCompile Include="Plugin.cpp" />
     <ClCompile Include="PluginCore.cpp" />
@@ -165,6 +166,7 @@
   <ItemGroup>
     <ClInclude Include="Connector.h" />
     <ClInclude Include="Datagram.pb.h" />
+    <ClInclude Include="Handle.h" />
     <ClInclude Include="MemoryUtils.h" />
     <ClInclude Include="MirandaContact.h" />
     <ClInclude Include="PluginCore.h" />
