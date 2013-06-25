@@ -113,7 +113,7 @@ void PluginCore::InitializeHooks()
 		message.set_text(StringUtils::EncodeAsUTF8(std::wstring(wText.get())));
 		message.set_direction(direction);
 
-		// TODO: Send message instance to the server.
+		core->_connector->queueMessage(message);
 
 		return 0;
 	};
