@@ -32,6 +32,7 @@ std::wstring MirandaContact::GetUID(HANDLE contactHandle)
 		break;
 	case CNFT_ASCIIZ:
 		stream << contactInfo.pszVal;
+		break;
 	default:
 		throw std::exception("Unknown contact info value type");
 	}
