@@ -93,7 +93,15 @@ void PluginCore::InitializeHooks()
 		auto contactHandle = reinterpret_cast<HANDLE>(wParam);
 		auto dbEventHandle = reinterpret_cast<HANDLE>(lParam);
 
+		// Prepare buffer for BLOB:
+		auto blobSize = CallService(MS_DB_EVENT_GETBLOBSIZE, reinterpret_cast<WPARAM>(dbEventHandle), 0);
+		auto blob = MemoryUtils::MakeUniquePtr(new unsigned char[blobSize], [](unsigned char *p){ delete[] p; });
+
 		auto eventInfo = DBEVENTINFO();
+		eventInfo.cbSize = sizeof eventInfo;
+		eventInfo.cbBlob = blobSize;
+		eventInfo.pBlob = blob.get();
+
 		if (CallService(MS_DB_EVENT_GET, reinterpret_cast<WPARAM>(dbEventHandle), reinterpret_cast<LPARAM>(&eventInfo)))
 		{
 			throw std::exception("Invalid DB event handle");
