@@ -82,7 +82,7 @@ DWORD Connector::loop(LPVOID self)
 	auto event = WsaEvent();
 	auto socketHandle = socket.handle();
 	auto eventHandle = event.handle();
-	auto selectResult = WSAEventSelect(socketHandle, eventHandle, FD_WRITE | FD_READ | FD_CLOSE);
+	auto selectResult = WSAEventSelect(socketHandle, eventHandle, FD_READ | FD_CLOSE);
 	if (selectResult)
 	{
 		throw WsaException("Cannot select WSA event", selectResult);
