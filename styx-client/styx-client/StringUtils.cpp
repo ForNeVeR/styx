@@ -21,7 +21,7 @@ std::string StringUtils::EncodeAsUTF8(const std::wstring &string)
 	
 	auto requiredSize = convert(nullptr, 0);
 	auto buffer = MemoryUtils::MakeUniquePtr(new char[requiredSize], std::default_delete<char[]>());
-	if (convert(buffer.get(), requiredSize))
+	if (convert(buffer.get(), requiredSize) == 0)
 	{
 		throw std::exception("Error when converting to UTF-8");
 	}
