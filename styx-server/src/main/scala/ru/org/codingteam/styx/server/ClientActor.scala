@@ -36,7 +36,7 @@ class ClientActor extends Actor with ActorLogging {
 	}
 
 	private def tryDeserialize() {
-		val dataLength = dataLength
+		val dataLength = this.dataLength
 		val stream = CodedInputStream.newInstance(buffer.drop(4).take(dataLength).toArray)
 		val result = Message.parseFrom(stream)
 		log.info(s"Received message: $result")
