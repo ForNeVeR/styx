@@ -1,5 +1,6 @@
 #include "Connector.h"
 
+#include <array>
 #include <exception>
 
 #include "MemoryUtils.h"
@@ -81,12 +82,16 @@ DWORD Connector::loop(LPVOID self)
 	auto event = WsaEvent();
 	auto socketHandle = socket.handle();
 	auto eventHandle = event.handle();
-	WSAEventSelect(socketHandle, eventHandle, FD_WRITE | FD_READ | FD_CLOSE);
+	auto selectResult = WSAEventSelect(socketHandle, eventHandle, FD_WRITE | FD_READ | FD_CLOSE);
+	if (selectResult)
+	{
+		throw WsaException("Cannot select WSA event", selectResult);
+	}
 	
 	while (true) // TODO: Find the way to stop the thread.
 	{
-		HANDLE events[] = { connector->_queueEventHandle, eventHandle };
-		auto waitResult = WaitForMultipleObjects(sizeof(events), events, false, INFINITE); // TODO: Wait for local events (i.e. new message in the queue).
+		std::array<HANDLE, 2> events = { connector->_queueEventHandle, eventHandle };
+		auto waitResult = WaitForMultipleObjects(events.size(), events.data(), false, INFINITE);
 		switch (waitResult)
 		{
 		case WAIT_OBJECT_0:

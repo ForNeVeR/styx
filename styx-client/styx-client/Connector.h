@@ -33,4 +33,3 @@ private:
 	void sendMessage(WsaSocket &socket);
 	void receiveData(WsaSocket &socket);
 };
-
