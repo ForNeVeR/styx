@@ -94,7 +94,10 @@ void PluginCore::InitializeHooks()
 		auto dbEventHandle = reinterpret_cast<HANDLE>(lParam);
 
 		auto eventInfo = DBEVENTINFO();
-		CallService(MS_DB_EVENT_GET, reinterpret_cast<WPARAM>(dbEventHandle), reinterpret_cast<LPARAM>(&eventInfo));
+		if (CallService(MS_DB_EVENT_GET, reinterpret_cast<WPARAM>(dbEventHandle), reinterpret_cast<LPARAM>(&eventInfo)))
+		{
+			throw std::exception("Invalid DB event handle");
+		}
 
 		if (eventInfo.eventType != EVENTTYPE_MESSAGE)
 		{
