@@ -13,7 +13,7 @@ using namespace ru::org::codingteam::styx;
 Connector::Connector()
 	: _started(false),
 	_threadId(0),
-	_queueEventHandle(::CreateEventW(nullptr, true, false, L"ConnectorQueueEvent")),
+	_queueEventHandle(::CreateEventW(nullptr, false, false, L"ConnectorQueueEvent")),
 	_messageQueue()
 {
 }
@@ -109,15 +109,13 @@ DWORD Connector::loop(LPVOID self)
 void Connector::sendMessage(WsaSocket &socket)
 {
 	Message message;
-	if (!_messageQueue.try_pop(message))
+	while(_messageQueue.try_pop(message))
 	{
-		return;
+		auto size = message.ByteSize();
+
+		socket.send(size);
+		socket.send(message.SerializeAsString());
 	}
-
-	auto size = message.ByteSize();
-
-	socket.send(size);
-	socket.send(message.SerializeAsString());
 }
 
 void Connector::receiveData(WsaSocket &socket)
