@@ -119,6 +119,7 @@ void PluginCore::InitializeHooks()
 		auto direction = eventInfo.flags & DBEF_SENT ? Message_Direction_OUTGOING : Message_Direction_INCOMING;
 
 		auto message = Message();
+		message.set_timestamp(eventInfo.timestamp);
 		message.set_protocol(eventInfo.szModule);
 		message.set_user_id(StringUtils::EncodeAsUTF8(contact));
 		message.set_text(StringUtils::EncodeAsUTF8(std::wstring(wText.get())));
