@@ -4,6 +4,7 @@
 #include <exception>
 
 #include "MemoryUtils.h"
+#include "Synchronizer.h"
 #include "WsaEvent.h"
 #include "WsaException.h"
 #include "WsaInit.h"
@@ -46,7 +47,7 @@ void Connector::queueMessage(const Message &message)
 	::SetEvent(_queueEventHandle);
 }
 
-std::unique_ptr<addrinfo, decltype(&freeaddrinfo)> Connector::GetServerAddress()
+std::unique_ptr<addrinfo, decltype(&freeaddrinfo)> Connector::getServerAddress()
 {
 	const auto host = "127.0.0.1";
 	const auto defaultPort = "6060";
@@ -61,8 +62,7 @@ std::unique_ptr<addrinfo, decltype(&freeaddrinfo)> Connector::GetServerAddress()
 	// Resolve the server address and port:
 	auto code = getaddrinfo(host, defaultPort, &address, &temp);
 
-	auto deleter = &freeaddrinfo;
-	auto result = MemoryUtils::MakeUniquePtr(temp, deleter);
+	auto result = MemoryUtils::MakeUniquePtr(temp, &freeaddrinfo);
 
 	if (code)
 	{
@@ -75,10 +75,15 @@ std::unique_ptr<addrinfo, decltype(&freeaddrinfo)> Connector::GetServerAddress()
 DWORD Connector::loop(LPVOID self)
 {
 	auto connector = static_cast<Connector*>(self);
+	auto synchronizer = Synchronizer();
+
 	auto init = WsaInit();
-	auto address = connector->GetServerAddress();
+	auto address = connector->getServerAddress();
 	auto socket = WsaSocket(address->ai_family, address->ai_socktype, address->ai_protocol);
 	socket.connect(*address);
+
+	synchronizer.dispatchConnected(*connector, socket);
+	
 	auto event = WsaEvent();
 	auto socketHandle = socket.handle();
 	auto eventHandle = event.handle();
@@ -91,14 +96,14 @@ DWORD Connector::loop(LPVOID self)
 	while (true) // TODO: Find the way to stop the thread.
 	{
 		std::array<HANDLE, 2> events = { connector->_queueEventHandle, eventHandle };
-		auto waitResult = WaitForMultipleObjects(events.size(), events.data(), false, INFINITE);
+		auto waitResult = WaitForMultipleObjects(static_cast<DWORD>(events.size()), events.data(), false, INFINITE);
 		switch (waitResult)
 		{
 		case WAIT_OBJECT_0:
-			connector->sendMessage(socket);
+			connector->dispatchMessages(synchronizer, socket);
 			break;
 		case WAIT_OBJECT_0 + 1:
-			connector->receiveData(socket);
+			connector->dispatchData(synchronizer, socket);
 			break;
 		default:
 			throw std::exception("Wait failed");
@@ -106,19 +111,31 @@ DWORD Connector::loop(LPVOID self)
 	}
 }
 
-void Connector::sendMessage(WsaSocket &socket)
+void Connector::dispatchMessages(Synchronizer &synchronizer, WsaSocket &socket)
 {
 	Message message;
 	while(_messageQueue.try_pop(message))
 	{
-		auto size = message.ByteSize();
-
-		socket.send(size);
-		socket.send(message.SerializeAsString());
+		synchronizer.dispatchMessage(*this, socket, message);
 	}
 }
 
-void Connector::receiveData(WsaSocket &socket)
+void Connector::dispatchData(Synchronizer &synchronizer, WsaSocket &socket)
 {
-	// TODO: Receive data from server.
+	// TODO: Receive data from the socket.
+	// TODO: Call proper synchronizer function.
+}
+
+void Connector::sendLogin(WsaSocket &socket)
+{
+	// TODO: send login data to the socket
+}
+
+void Connector::sendMessage(WsaSocket &socket, Message &message)
+{
+	auto size = message.ByteSize();
+
+	socket.send(size);
+	// TODO: send message type
+	socket.send(message.SerializeAsString());
 }

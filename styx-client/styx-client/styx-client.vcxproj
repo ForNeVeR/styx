@@ -161,6 +161,7 @@
     <ClCompile Include="Plugin.cpp" />
     <ClCompile Include="PluginCore.cpp" />
     <ClCompile Include="StringUtils.cpp" />
+    <ClCompile Include="Synchronizer.cpp" />
     <ClCompile Include="WsaEvent.cpp" />
     <ClCompile Include="WsaException.cpp" />
     <ClCompile Include="WsaInit.cpp" />
@@ -174,6 +175,8 @@
     <ClInclude Include="MirandaContact.h" />
     <ClInclude Include="PluginCore.h" />
     <ClInclude Include="StringUtils.h" />
+    <ClInclude Include="Synchronizer.h" />
+    <ClInclude Include="SynchronizerState.h" />
     <ClInclude Include="WindowsIncludes.h" />
     <ClInclude Include="WsaEvent.h" />
     <ClInclude Include="WsaException.h" />
