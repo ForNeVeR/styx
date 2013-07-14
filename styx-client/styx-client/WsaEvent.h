@@ -8,7 +8,7 @@ public:
 	WsaEvent();
 	~WsaEvent();
 
-	WSAEVENT handle();
+	WSAEVENT handle() const;
 
 private:
 	WSAEVENT _handle;

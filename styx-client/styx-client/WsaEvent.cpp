@@ -20,7 +20,7 @@ WsaEvent::~WsaEvent()
 	}
 }
 
-WSAEVENT WsaEvent::handle()
+WSAEVENT WsaEvent::handle() const
 {
 	return _handle;
 }
