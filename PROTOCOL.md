@@ -21,14 +21,25 @@ Packet body is encoded by the protobuf library.
 3. server: `LoginResult`
 
 # Hashing
-On this stage client and server should check data consistency.
+All client messages are sorted by UTC date. Then they are chunked with the rolling hash algorithm. Then for each chunk the following algorithm should be performed:
 
-1. client: `Hash`
-2. server: `HashResult`
+    for each Chunk on client
+    	client_send(ChunkHash)
+    	server_send(ChunkHashResult)
+    	if (ChunkHashResult is negative)
+    		for each Message in Chunk on client
+    			client_send(Message)
+    			server_send(MessageResult)
+    		client_send(ChunkHash)
+    		server_send(ChunkHashResult)
+    		if (ChunkHashResult is negative)
+    			for each Message in Chunk on server
+    				client_send(Message)
+    				server_send(MessageResult)
 
-If `HashResult` is negative, client should break current hashed region into smaller chunks and repeat the procedure. Finally, chunk is of size 1...
+If a message is received by client while hashing stage is performed, and this message were put inso one of the already synced chunks, then the client should restart the hashing from the changed chunk.
 
-TODO: Desing this part.
+If a message is received by the server while hashing stage is performed, server should notify the client about that by the flags inside the next MessageResult packet. Client then should restart the hashing from the changed chunk.
 
 # Messaging
 This stage repeats continously after the hashing stage. Any participant (client or server) can initiate the sequence.
