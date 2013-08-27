@@ -1,0 +1,6 @@
+package ru.org.codingteam.styx;
+
+enum MessageType {
+	 LoginRequest = 1;
+	 LoginResponse = 2;
+}

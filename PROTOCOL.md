@@ -5,7 +5,7 @@ Styx protocol definition
 Any Styx network packet can be represented by the following structure:
 
     length : 4 bytes
-    type   : 4 bytes
+    type   : 4 bytes (`MessageType` enum)
     body   : <length> bytes
 
 Packet body is encoded by the protobuf library.
@@ -17,8 +17,8 @@ Packet body is encoded by the protobuf library.
 
 # Handshake
 1. TCP connection.
-2. client: `Login`
-3. server: `LoginResult`
+2. client: `LoginRequest`
+3. server: `LoginResponse`
 
 # Hashing
 All client messages are sorted by UTC date. Then they are chunked with the rolling hash algorithm. Then for each chunk the following algorithm should be performed:
