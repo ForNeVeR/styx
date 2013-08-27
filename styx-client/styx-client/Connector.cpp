@@ -3,6 +3,7 @@
 #include <array>
 #include <exception>
 
+#include "LoginDef.pb.h"
 #include "MemoryUtils.h"
 #include "Synchronizer.h"
 #include "WsaEvent.h"
@@ -128,7 +129,13 @@ void Connector::dispatchData(Synchronizer &synchronizer, WsaSocket &socket)
 
 void Connector::sendLogin(WsaSocket &socket)
 {
-	// TODO: send login data to the socket
+	// TODO: Get the user name and the password from the database.
+
+	auto message = Login();
+	message.set_username("user");
+	message.set_password("password");
+
+	sendDatagram(socket, MessageType::LoginRequest, message);
 }
 
 void Connector::sendMessage(WsaSocket &socket, Message &message)
@@ -138,4 +145,9 @@ void Connector::sendMessage(WsaSocket &socket, Message &message)
 	socket.send(size);
 	// TODO: send message type
 	socket.send(message.SerializeAsString());
+}
+
+void Connector::sendDatagram(WsaSocket &socket, const MessageType &type, const google::protobuf::Message &message)
+{
+	// TODO: send the message.
 }

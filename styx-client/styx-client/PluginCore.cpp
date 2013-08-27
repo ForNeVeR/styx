@@ -9,7 +9,6 @@
 #include <m_skin.h>
 
 #include "Connector.h"
-#include "Datagram.pb.h"
 #include "MemoryUtils.h"
 #include "MirandaContact.h"
 #include "StringUtils.h"

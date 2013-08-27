@@ -3,7 +3,8 @@
 #include <concurrent_queue.h>
 #include <memory>
 
-#include "Datagram.pb.h"
+#include "MessageDef.pb.h"
+#include "MessageTypeDef.pb.h"
 #include "Handle.h"
 #include "WindowsIncludes.h"
 #include "WsaSocket.h"
@@ -37,4 +38,9 @@ private:
 
 	void dispatchMessages(Synchronizer &synchronizer, WsaSocket &socket);
 	void dispatchData(Synchronizer &synchronizer, WsaSocket &socket);
+
+	void sendDatagram(
+		WsaSocket &socket,
+		const ru::org::codingteam::styx::MessageType &type,
+		const google::protobuf::Message &message);
 };

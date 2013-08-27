@@ -155,8 +155,10 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="Connector.cpp" />
-    <ClCompile Include="Datagram.pb.cc" />
     <ClCompile Include="Handle.cpp" />
+    <ClCompile Include="LoginDef.pb.cc" />
+    <ClCompile Include="MessageDef.pb.cc" />
+    <ClCompile Include="MessageTypeDef.pb.cc" />
     <ClCompile Include="MirandaContact.cpp" />
     <ClCompile Include="Plugin.cpp" />
     <ClCompile Include="PluginCore.cpp" />
@@ -169,9 +171,11 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Connector.h" />
-    <ClInclude Include="Datagram.pb.h" />
     <ClInclude Include="Handle.h" />
+    <ClInclude Include="LoginDef.pb.h" />
     <ClInclude Include="MemoryUtils.h" />
+    <ClInclude Include="MessageDef.pb.h" />
+    <ClInclude Include="MessageTypeDef.pb.h" />
     <ClInclude Include="MirandaContact.h" />
     <ClInclude Include="PluginCore.h" />
     <ClInclude Include="StringUtils.h" />

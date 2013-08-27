@@ -1,7 +1,7 @@
 #pragma once
 #include "SynchronizerState.h"
 
-#include "Datagram.pb.h"
+#include "MessageDef.pb.h"
 #include "WsaSocket.h"
 
 class Connector;
