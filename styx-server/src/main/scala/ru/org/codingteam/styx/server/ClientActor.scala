@@ -3,9 +3,9 @@ package ru.org.codingteam.styx.server
 import akka.actor.{Actor, ActorLogging}
 import akka.util.ByteString
 import akka.actor.IO.{SocketHandle, Closed, Read}
-import com.google.protobuf.{InvalidProtocolBufferException, CodedInputStream}
-import ru.org.codingteam.styx.Datagram.Message
+import com.google.protobuf.CodedInputStream
 import java.nio.ByteBuffer
+import ru.org.codingteam.styx.MessageDef.Message
 
 class ClientActor extends Actor with ActorLogging {
 
