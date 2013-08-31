@@ -3,6 +3,9 @@
 #include <memory>
 #include <string>
 
+#include <boost/log/trivial.hpp>
+#include <boost/log/utility/setup/file.hpp>
+
 #include <m_langpack.h>
 #include <m_clist.h>
 #include <m_database.h>
@@ -29,6 +32,9 @@ PluginCore::~PluginCore()
 
 void PluginCore::Initialize()
 {
+	boost::log::add_file_log("styx.log");
+	BOOST_LOG_TRIVIAL(info) << "Initialized";
+
 	InitializeLangpack();
 	InitializeMainMenu();
 	InitializeHooks();
@@ -93,7 +99,7 @@ void PluginCore::InitializeHooks()
 		auto dbEventHandle = reinterpret_cast<HANDLE>(lParam);
 
 		// Prepare buffer for BLOB:
-		auto blobSize = CallService(MS_DB_EVENT_GETBLOBSIZE, reinterpret_cast<WPARAM>(dbEventHandle), 0);
+		auto blobSize = db_event_getBlobSize(dbEventHandle);
 		auto blob = MemoryUtils::MakeUniquePtr(new unsigned char[blobSize], [](unsigned char *p){ delete[] p; });
 
 		auto eventInfo = DBEVENTINFO();
@@ -101,7 +107,7 @@ void PluginCore::InitializeHooks()
 		eventInfo.cbBlob = blobSize;
 		eventInfo.pBlob = blob.get();
 
-		if (CallService(MS_DB_EVENT_GET, reinterpret_cast<WPARAM>(dbEventHandle), reinterpret_cast<LPARAM>(&eventInfo)))
+		if (db_event_get(dbEventHandle, &eventInfo))
 		{
 			throw std::exception("Invalid DB event handle");
 		}

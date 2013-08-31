@@ -41,9 +41,19 @@ To run the server, install `sbt` and use
 For now, the only client is Miranda NG plugin.
 
 ## Building
-Current client code is compatible only with MSVS IDE. First of all, if you not
-plan to debug your code inside IDE, you're free to disable the post-build
-action. Then, build projects as always.
+
+### Compiler
+
+Current client code is compatible only with MSVS IDE.
+
+### Libraries
+
+You'll need a boost logging library.
+
+### Process
+
+First of all, if you not plan to debug your code inside IDE, you're
+free to disable the post-build action. Then, build projects as always.
 
 ## Using
 Copy `*.dll` and `*.pdb` files to folder `Miranda/Plugins`. Start Miranda and
