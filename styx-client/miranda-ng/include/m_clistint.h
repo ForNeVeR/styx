@@ -26,9 +26,9 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #include <CommCtrl.h>
 
-#include "m_clc.h"
 #include "m_genmenu.h"
 #include "m_protocols.h"
+#include "m_clc.h"
 
 #define HCONTACT_ISGROUP    0x80000000
 #define HCONTACT_ISINFO     0xFFFF0000
@@ -470,6 +470,12 @@ typedef struct
 	 *************************************************************************************/
 	void   (*pfnReloadExtraIcons)(void);
 	void   (*pfnSetAllExtraIcons)(HWND hwndList,HANDLE hContact);
+
+	/*************************************************************************************
+	 * Miranda NG additions
+	 *************************************************************************************/
+	int    (*pfnGetContactIcon)(HANDLE hContact);
+	int    (*pfnTrayCalcChanged)(const char *szChangedProto, int averageMode, int iProtoCount);
 }
 	CLIST_INTERFACE;
 

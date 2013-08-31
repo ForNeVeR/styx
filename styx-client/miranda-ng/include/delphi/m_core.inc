@@ -126,6 +126,8 @@ function db_event_prev(hDbEvent:THANDLE):THANDLE; stdcall;
 
 function db_free(dbv:PDBVARIANT):int_ptr; stdcall;
                  external CoreDLL name 'db_free';
+function db_set_resident(const szModule:pAnsiChar; const szSetting:pAnsiChar; bEnable:int):int; stdcall;
+                 external CoreDLL name 'db_set_resident';
 function db_unset(hContact:THANDLE; const szModule:pAnsiChar; const szSetting:pAnsiChar):int_ptr; stdcall;
                  external CoreDLL name 'db_unset';
 
@@ -134,14 +136,14 @@ function db_find_first(const szModule:pAnsiChar=nil):THANDLE; stdcall;
 function db_find_next(hContact:THANDLE; const szModule:pAnsiChar=nil):THANDLE; stdcall;
                  external CoreDLL name 'db_find_next';
 
+function db_get(hContact:THANDLE; const szModule:pAnsiChar; const szSetting:pAnsiChar; dbv:PDBVARIANT):int_ptr; stdcall;
+                 external CoreDLL name 'db_get';
 function db_get_b(hContact:THANDLE; const szModule:pAnsiChar; const szSetting:pAnsiChar; errorValue:int):int; stdcall;
                  external CoreDLL name 'db_get_b';
 function db_get_w(hContact:THANDLE; const szModule:pAnsiChar; const szSetting:pAnsiChar; errorValue:int):int; stdcall;
                  external CoreDLL name 'db_get_w';
 function db_get_dw(hContact:THANDLE; const szModule:pAnsiChar; const szSetting:pAnsiChar; errorValue:dword):dword; stdcall;
                  external CoreDLL name 'db_get_dw';
-function db_get(hContact:THANDLE; const szModule:pAnsiChar; const szSetting:pAnsiChar; dbv:PDBVARIANT):int_ptr; stdcall;
-                 external CoreDLL name 'db_get';
 function db_get_s(hContact:THANDLE; const szModule:pAnsiChar; const szSetting:pAnsiChar; dbv:PDBVARIANT; const nType:int=DBVT_ASCIIZ):int_ptr; stdcall;
                  external CoreDLL name 'db_get_s';
 function db_get_sa(hContact:THANDLE; const szModule:pAnsiChar; const szSetting:pAnsiChar):pAnsiChar; stdcall;
@@ -149,6 +151,8 @@ function db_get_sa(hContact:THANDLE; const szModule:pAnsiChar; const szSetting:p
 function db_get_wsa(hContact:THANDLE; const szModule:pAnsiChar; const szSetting:pAnsiChar):pWideChar; stdcall;
                  external CoreDLL name 'db_get_wsa';
 
+function db_set(hContact:THANDLE; const szModule:pAnsiChar; const szSetting:pAnsiChar; dbv:PDBVARIANT):int_ptr; stdcall;
+                 external CoreDLL name 'db_set';
 function db_set_b(hContact:THANDLE; const szModule:pAnsiChar; const szSetting:pAnsiChar; val:byte):int_ptr; stdcall;
                  external CoreDLL name 'db_set_b';
 function db_set_w(hContact:THANDLE; const szModule:pAnsiChar; const szSetting:pAnsiChar; val:word):int_ptr; stdcall;
@@ -422,6 +426,17 @@ procedure List_ObjCopy(src:PSortedList; dst:PSortedList; size:size_t); stdcall;
 
 
 ///////////////////////////////////////////////////////////////////////////////
+// log functions
+
+function mir_createLog(pszName:PAnsiChar; ptszDescr, ptszFile:PWideChar; options:Cardinal):THandle;stdcall;
+                 external CoreDLL name 'mir_createLog';
+
+function mir_writeLogA(hLog:THandle; format:PAnsiChar):int;cdecl;
+                 external CoreDLL name 'mir_writeLogA';
+function mir_writeLogW(hLog:THandle; format:PWideChar):int;cdecl;
+                 external CoreDLL name 'mir_writeLogW';
+
+///////////////////////////////////////////////////////////////////////////////
 // md5 functions
 
 // Define the state of the MD5 Algorithm.
@@ -510,13 +525,42 @@ function PathToRelativeW(const pSrc:pWideChar; pOut:pWideChar):int; stdcall;
 
 function mir_snprintf(buffer:pAnsiChar;count:size_t;fmt:pAnsiChar{, ...}):int; stdcall;
                  external CoreDLL name 'mir_snprintf';
-function mir_sntprintf(buffer:pWideChar;count:size_t;fmt:pWideChar{, ...}):int; stdcall;
-                 external CoreDLL name 'mir_sntprintf';
+function mir_snwprintf(buffer:pWideChar;count:size_t;fmt:pWideChar{, ...}):int; stdcall;
+                 external CoreDLL name 'mir_snwprintf';
 function mir_vsnprintf(buffer:pAnsiChar;count:size_t;fmt:pAnsiChar;va:va_list):int; stdcall;
                  external CoreDLL name 'mir_vsnprintf';
-function mir_vsntprintf(buffer:pWideChar;count:size_t;fmt:pWideChar;va:va_list):int; stdcall;
-                 external CoreDLL name 'mir_vsntprintf';
+function mir_vsnwprintf(buffer:pWideChar;count:size_t;fmt:pWideChar;va:va_list):int; stdcall;
+                 external CoreDLL name 'mir_vsnwprintf';
 
+
+///////////////////////////////////////////////////////////////////////////////
+// protocol functions
+
+function ProtoBroadcastAck(const szModule: PAnsiChar; hContact: THandle; type_: int; result_: int; hProcess: THandle; lParam: LPARAM): int_ptr; stdcall;
+                 external CoreDLL name 'ProtoBroadcastAck';
+
+function ProtoCallService(const szModule, szName:PAnsiChar; wParam:WPARAM; lParam:LPARAM):int_ptr; stdcall;
+                 external CoreDLL name 'ProtoServiceExists';
+
+function ProtoServiceExists(const szModule, szName:PAnsiChar):int; stdcall;
+                 external CoreDLL name 'ProtoServiceExists';
+
+// returns image extension by a PA_* constant or empty string for PA_FORMAT_UNKNOWN
+function ProtoGetAvatarExtension(format:int):PWideChar; stdcall;
+                 external CoreDLL name 'ProtoGetAvatarExtension';
+
+// detects image format by extension
+function ProtoGetAvatarFormat(const szFileName:PWideChar):int; stdcall;
+                 external CoreDLL name 'ProtoGetAvatarFormat';
+
+// detects image format by its contents
+function ProtoGetAvatarFileFormat(const szFileName:PWideChar):int; stdcall;
+                 external CoreDLL name 'ProtoGetAvatarFileFormat';
+
+// returns the image format and extension by the first bytes of picture
+// ptszExtension might be NULL
+function ProtoGetBufferFormat(const buf:PByte; var ext:PWideChar):int; stdcall;
+                 external CoreDLL name 'ProtoGetBufferFormat';
 
 ///////////////////////////////////////////////////////////////////////////////
 // sha1 functions
@@ -549,9 +593,18 @@ procedure mir_sha1_finish(ctx:pmir_sha1_ctx; hashout:SHA1Hash); stdcall;
 procedure mir_sha1_hash(dataIn:pmir_sha1_byte_t; len:int;hashout:SHA1Hash); stdcall;
                  external CoreDLL name 'mir_sha1_hash';
 
+procedure mir_hmac_sha1(hashout:SHA1Hash; const key:pmir_sha1_byte_t; keyLen:size_t; const dataIn:pmir_sha1_byte_t; dataLen:size_t); stdcall;
+                 external CoreDLL name 'mir_hmac_sha1';
 
 ///////////////////////////////////////////////////////////////////////////////
 // strings
+
+function mir_base64_decode(str:pAnsiChar; var resultSize:int):PByte; stdcall;
+               external CoreDLL name 'mir_base64_decode';
+function mir_base64_encode(data:PByte; dataSize:int):pAnsiChar; stdcall;
+               external CoreDLL name 'mir_base64_encode';
+function mir_base64_encodebuf(data:PByte; dataSize:int; output:pAnsiChar; outputLen:int):pAnsiChar; stdcall;
+               external CoreDLL name 'mir_base64_encodebuf';
 
 function rtrim(str:pAnsiChar):pAnsiChar; stdcall;
                external CoreDLL name 'rtrim';
@@ -584,6 +637,12 @@ function replaceStr(var dest:pAnsiChar; const src:pAnsiChar):pAnsiChar; stdcall;
                  external CoreDLL name 'replaceStr';
 function replaceStrW(var dest:pWideChar; const src:pWideChar):pWideChar; stdcall;
                  external CoreDLL name 'replaceStrW';
+
+function bin2hex(data:pointer; dataLen:size_t; pDest:pAnsiChar):pAnsiChar; stdcall;
+                 external CoreDLL name 'bin2hex';
+function bin2hexW(data:pointer; dataLen:size_t; pDest:pWideChar):pWideChar; stdcall;
+                 external CoreDLL name 'bin2hexW';
+
 ///////////////////////////////////////////////////////////////////////////////
 // text conversion functions
 

@@ -44,7 +44,7 @@ template<class T> class mir_ptr
 	T* data;
 
 public:
-	__inline mir_ptr() : data((T*)mir_calloc(sizeof(T))) {}
+	__inline mir_ptr() : data(NULL) {}
 	__inline mir_ptr(T* _p) : data(_p) {}
 	__inline ~mir_ptr() { mir_free(data); }
 	__inline T* operator = (T* _p) { if (data) mir_free(data); data = _p; return data; }
@@ -52,6 +52,10 @@ public:
 	__inline operator T*() const { return data; }
 	__inline operator INT_PTR() const { return (INT_PTR)data; }
 };
+
+typedef mir_ptr<char>  ptrA;
+typedef mir_ptr<TCHAR> ptrT;
+typedef mir_ptr<WCHAR> ptrW;
 
 ///////////////////////////////////////////////////////////////////////////////
 // mir_cslock - simple locker for the critical sections
