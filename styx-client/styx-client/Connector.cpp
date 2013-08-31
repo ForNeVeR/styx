@@ -140,14 +140,15 @@ void Connector::sendLogin(WsaSocket &socket)
 
 void Connector::sendMessage(WsaSocket &socket, Message &message)
 {
-	auto size = message.ByteSize();
-
-	socket.send(size);
-	// TODO: send message type
-	socket.send(message.SerializeAsString());
+	// TODO: send the message.
+	// sendDatagram(socket, MessageType::MessageRequest, message);
 }
 
 void Connector::sendDatagram(WsaSocket &socket, const MessageType &type, const google::protobuf::Message &message)
 {
-	// TODO: send the message.
+	auto size = message.ByteSize();
+	
+	socket.send(type);
+	socket.send(size);
+	socket.send(message.SerializeAsString());
 }

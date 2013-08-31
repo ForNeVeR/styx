@@ -4,8 +4,8 @@ Styx protocol definition
 # Packet structure
 Any Styx network packet can be represented by the following structure:
 
-    length : 4 bytes
     type   : 4 bytes (`MessageType` enum)
+    length : 4 bytes
     body   : <length> bytes
 
 Packet body is encoded by the protobuf library.

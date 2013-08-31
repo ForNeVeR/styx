@@ -5,7 +5,6 @@ import akka.util.ByteString
 import akka.actor.IO.{SocketHandle, Closed, Read}
 import com.google.protobuf.CodedInputStream
 import java.nio.ByteBuffer
-import ru.org.codingteam.styx.MessageDef.Message
 import ru.org.codingteam.styx.MessageTypeDef.MessageType
 import ru.org.codingteam.styx.LoginDef.Login
 
@@ -30,8 +29,8 @@ class ClientActor extends Actor with ActorLogging {
 			context.stop(self)
 	}
 
-	private def dataLength = getInt(buffer)
-	private def messageType = MessageType.valueOf(getInt(buffer.drop(4)))
+	private def messageType = MessageType.valueOf(getInt(buffer))
+	private def dataLength = getInt(buffer.drop(4))
 
 	private def receiveBytes(bytes: ByteString) {
 		buffer = buffer ++ bytes
@@ -49,7 +48,7 @@ class ClientActor extends Actor with ActorLogging {
 
 	private def tryDeserialize() {
 		val dataLength = this.dataLength
-		val stream = CodedInputStream.newInstance(buffer.drop(4).take(dataLength).toArray)
+		val stream = CodedInputStream.newInstance(buffer.drop(8).take(dataLength).toArray)
 		val result = messageType match {
 			case MessageType.LoginRequest => Login.parseFrom(stream)
 			case _ => "Unknown"
