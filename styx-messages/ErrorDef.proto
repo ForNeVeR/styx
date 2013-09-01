@@ -1,0 +1,5 @@
+package ru.org.codingteam.styx;
+
+message Error {
+	required string reason = 1;
+}

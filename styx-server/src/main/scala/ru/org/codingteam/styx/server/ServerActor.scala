@@ -17,7 +17,7 @@ class ServerActor extends Actor with ActorLogging {
 
 		case NewClient(server) =>
 			println("New incoming connection on server")
-			val client = context.actorOf(Props[ClientActor])
+			val client = context.actorOf(Props[ClientConnectionActor])
 			try {
 				server.accept()(client)
 			} catch {

@@ -1,68 +1,35 @@
 package ru.org.codingteam.styx.server
 
 import akka.actor.{Actor, ActorLogging}
-import akka.util.ByteString
-import akka.actor.IO.{SocketHandle, Closed, Read}
-import com.google.protobuf.CodedInputStream
-import java.nio.ByteBuffer
-import ru.org.codingteam.styx.MessageTypeDef.MessageType
 import ru.org.codingteam.styx.LoginDef.Login
+import ru.org.codingteam.styx.LoginResultDef.LoginResult
+import com.google.protobuf.Message
 
 class ClientActor extends Actor with ActorLogging {
+	private var state: SynchronizerState = NotConnected
 
-	private var buffer = ByteString()
-	private var state = NotConnected
-
-	override def preStart() {
-		state = NotConnected
-		buffer = ByteString()
+	override def receive = {
+		case loginRequest: Login =>
+			processLoginRequest(loginRequest)
+		case UnknownMessage =>
+			log.info("Got unknown message")
 	}
 
-	def receive = {
-		case Read(socket, bytes) =>
-			log.info("Received incoming data from socket")
-			receiveBytes(bytes)
-
-		case Closed(socket: SocketHandle, cause) =>
-			log.info("Socket has closed, cause: " + cause)
-			state = NotConnected
-			context.stop(self)
-	}
-
-	private def messageType = MessageType.valueOf(getInt(buffer))
-	private def dataLength = getInt(buffer.drop(4))
-
-	private def receiveBytes(bytes: ByteString) {
-		buffer = buffer ++ bytes
-		val length = buffer.length
-		log.info(s"Buffer length = $length bytes")
-		if (length >= 8) {
-			log.info(s"Data length = $dataLength bytes")
-			log.info(s"Message type = $messageType")
-		    if (length >= dataLength + 8) {
-			    log.info("Deserializing message")
-			    tryDeserialize()
-		    }
-		}
-	}
-
-	private def tryDeserialize() {
-		val dataLength = this.dataLength
-		val stream = CodedInputStream.newInstance(buffer.drop(8).take(dataLength).toArray)
-		val result = messageType match {
-			case MessageType.LoginRequest => Login.parseFrom(stream)
-			case _ => "Unknown"
+	private def processLoginRequest(request: Login) {
+		val result: Message = state match {
+			case NotConnected =>
+				// TODO: Check user credientials
+				val status = request.getUsername == "user" && request.getPassword == "password"
+				val message = LoginResult.newBuilder().setLogged(status).build()
+				if (status) {
+					state = Hashing
+				}
+				message
+			case _ =>
+				val message = ru.org.codingteam.styx.ErrorDef.Error.newBuilder().setReason("Already logged in").build()
+				message
 		}
 
-		log.info(s"Received message: $result")
-
-		buffer = buffer.drop(8 + dataLength)
-		val length = buffer.length
-		log.info(s"Remaining $length bytes")
-	}
-
-	private def getInt(packet: ByteString) = {
-		val array = packet.take(4).toArray
-		ByteBuffer.wrap(array).getInt
+		sender ! result
 	}
 }

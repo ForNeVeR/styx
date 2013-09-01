@@ -1,6 +1,7 @@
 package ru.org.codingteam.styx;
 
 enum MessageType {
-	 LoginRequest = 1;
-	 LoginResponse = 2;
+	 ProtocolError = 1;
+	 LoginRequest = 2;
+	 LoginResponse = 3;
 }
