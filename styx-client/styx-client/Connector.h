@@ -1,7 +1,9 @@
 #pragma once
 
-#include <concurrent_queue.h>
 #include <memory>
+#include <vector>
+
+#include <concurrent_queue.h>
 
 #include "MessageDef.pb.h"
 #include "MessageTypeDef.pb.h"
@@ -31,6 +33,7 @@ private:
 	bool _started;
 	DWORD _threadId;
 	Handle _queueEventHandle;
+	std::vector<char> _socketBuffer;
 
 	concurrency::concurrent_queue<ru::org::codingteam::styx::Message> _messageQueue;
 

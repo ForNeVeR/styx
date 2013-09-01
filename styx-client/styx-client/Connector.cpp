@@ -16,6 +16,7 @@ Connector::Connector()
 	: _started(false),
 	_threadId(0),
 	_queueEventHandle(::CreateEventW(nullptr, false, false, L"ConnectorQueueEvent")),
+	_socketBuffer(),
 	_messageQueue()
 {
 }
@@ -123,8 +124,37 @@ void Connector::dispatchMessages(Synchronizer &synchronizer, WsaSocket &socket)
 
 void Connector::dispatchData(Synchronizer &synchronizer, WsaSocket &socket)
 {
-	// TODO: Receive data from the socket.
-	// TODO: Call proper synchronizer function.
+	uint8_t buffer[1024];
+	
+	auto size = 0;
+	while (size = socket.recv(buffer, sizeof(buffer)))
+	{
+		if (size == SOCKET_ERROR)
+		{
+			throw WsaException("recv error", WSAGetLastError());
+		}
+
+		for (int i = 0; i < size; ++i)
+		{
+			_socketBuffer.push_back(buffer[i]);
+		}
+
+		if (_socketBuffer.size() >= 8)
+		{
+			auto intPtr = reinterpret_cast<uint32_t*>(_socketBuffer.data());
+			auto type = ntohl(intPtr[0]);
+			auto length = ntohl(intPtr[1]);
+
+			// TODO: Deserialize message with proper type.
+			// TODO: Call proper synchronizer function.
+			//switch (type)
+			//{
+			//case MessageType::LoginResponse:
+			//	auto loginResponse = LoginResult::
+			//default:
+			//}
+		}
+	}
 }
 
 void Connector::sendLogin(WsaSocket &socket)
