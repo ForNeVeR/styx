@@ -6,6 +6,7 @@
 #include <process.h>
 
 #include "LoginDef.pb.h"
+#include "LoginResultDef.pb.h"
 #include "MemoryUtils.h"
 #include "Synchronizer.h"
 #include "WsaEvent.h"
@@ -135,33 +136,50 @@ void Connector::dispatchData(Synchronizer &synchronizer, WsaSocket &socket)
 {
 	uint8_t buffer[1024];
 	
-	auto size = 0;
-	while (size = socket.recv(buffer, sizeof(buffer)))
+	auto dataSize = 0;
+	while (dataSize = socket.recv(buffer, sizeof(buffer)))
 	{
-		if (size == SOCKET_ERROR)
+		if (dataSize == SOCKET_ERROR)
 		{
 			throw WsaException("recv error", WSAGetLastError());
 		}
 
-		for (int i = 0; i < size; ++i)
+		for (int i = 0; i < dataSize; ++i)
 		{
 			_socketBuffer.push_back(buffer[i]);
 		}
 
-		if (_socketBuffer.size() >= 8)
+		auto size = _socketBuffer.size();
+		if (size >= 8)
 		{
-			auto intPtr = reinterpret_cast<uint32_t*>(_socketBuffer.data());
+			auto data = _socketBuffer.data();
+			auto intPtr = reinterpret_cast<const uint32_t*>(data);
 			auto type = ntohl(intPtr[0]);
 			auto length = ntohl(intPtr[1]);
+			if (size <= 8 + length)
+			{
+				continue;
+			}
 
-			// TODO: Deserialize message with proper type.
-			// TODO: Call proper synchronizer function.
-			//switch (type)
-			//{
-			//case MessageType::LoginResponse:
-			//	auto loginResponse = LoginResult::
-			//default:
-			//}
+			auto body = data + 8;
+			switch (type)
+			{
+			case MessageType::LoginResponse:
+				{
+					auto loginResponse = LoginResult();
+					if (!loginResponse.ParseFromArray(body, length))
+					{
+						throw std::exception("Cannot parse login response");
+					}
+
+					synchronizer.dispatchMessage(*this, socket, loginResponse);
+				}
+				break;
+			default:
+				throw std::exception("Unknown message type");
+			}
+
+			_socketBuffer.erase(_socketBuffer.begin(), _socketBuffer.begin() + length);
 		}
 	}
 }
@@ -177,7 +195,7 @@ void Connector::sendLogin(WsaSocket &socket)
 	sendDatagram(socket, MessageType::LoginRequest, message);
 }
 
-void Connector::sendMessage(WsaSocket &socket, Message &message)
+void Connector::sendMessage(WsaSocket &socket, const Message &message)
 {
 	// TODO: send the message.
 	// sendDatagram(socket, MessageType::MessageRequest, message);

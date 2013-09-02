@@ -15,7 +15,7 @@ public:
 	void send(const char *bytes, int length);
 	void send(std::uint32_t data);
 	void send(const std::string &string);
-	int recv(char * const buffer, int length);
+	int recv(std::uint8_t * const buffer, int length);
 
 	SOCKET handle() const;
 

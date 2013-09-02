@@ -25,7 +25,7 @@ public:
 	void queueMessage(const ru::org::codingteam::styx::Message &message);
 
 	void sendLogin(WsaSocket &socket);
-	void sendMessage(WsaSocket &socket, ru::org::codingteam::styx::Message &message);
+	void sendMessage(WsaSocket &socket, const ru::org::codingteam::styx::Message &message);
 
 private:
 	static void _cdecl loop(void *self);

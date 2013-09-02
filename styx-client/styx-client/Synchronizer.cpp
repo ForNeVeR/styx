@@ -15,7 +15,7 @@ void Synchronizer::dispatchConnected(Connector &connector, WsaSocket &socket)
 	connector.sendLogin(socket);
 }
 
-void Synchronizer::dispatchMessage(Connector &connector, WsaSocket &socket, Message &message)
+void Synchronizer::dispatchMessage(Connector &connector, WsaSocket &socket, const Message &message)
 {
 	switch (_state)
 	{
@@ -26,4 +26,27 @@ void Synchronizer::dispatchMessage(Connector &connector, WsaSocket &socket, Mess
 		connector.sendMessage(socket, message);
 		break;
 	}
+}
+
+void Synchronizer::dispatchMessage(Connector &connector, WsaSocket &socket, const LoginResult &message)
+{
+	if (!message.logged())
+	{
+		throw std::exception("Cannot log in");
+	}
+
+	switch (_state)
+	{
+	case SynchronizerState::Handshake:
+		_state = SynchronizerState::Hashing;
+		hashingStep(connector, socket);
+		break;
+	default:
+		throw std::exception("Invalid synchronizer state");
+	}
+}
+
+void Synchronizer::hashingStep(Connector &connector, WsaSocket &socket)
+{
+	// TODO: do single hashing step.
 }

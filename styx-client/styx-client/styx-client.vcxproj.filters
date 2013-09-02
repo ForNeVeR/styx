@@ -57,6 +57,9 @@
     <ClCompile Include="MessageDef.pb.cc">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="LoginResultDef.pb.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="WsaInit.h">
@@ -105,6 +108,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="MessageDef.pb.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="LoginResultDef.pb.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
