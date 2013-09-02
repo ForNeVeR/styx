@@ -3,6 +3,8 @@
 #include <array>
 #include <exception>
 
+#include <process.h>
+
 #include "LoginDef.pb.h"
 #include "MemoryUtils.h"
 #include "Synchronizer.h"
@@ -31,7 +33,14 @@ void Connector::start()
 		throw std::exception("Thread already started");
 	}
 
-	CreateThread(nullptr, 0, &loop, this, 0, &_threadId);
+	_threadId = _beginthread(&loop, 0, this);
+	if (_threadId == -1L)
+	{
+		auto message = "Cannot start thread; errno = " + std::to_string(errno);
+		throw std::exception(message.c_str());
+	}
+
+	_started = true;
 }
 
 void Connector::stop()
@@ -73,7 +82,7 @@ std::unique_ptr<addrinfo, decltype(&freeaddrinfo)> Connector::getServerAddress()
 	return result;
 }
 
-DWORD Connector::loop(LPVOID self)
+void _cdecl Connector::loop(void *self)
 {
 	auto connector = static_cast<Connector*>(self);
 	auto synchronizer = Synchronizer();

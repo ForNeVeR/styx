@@ -26,10 +26,10 @@ public:
 	void sendMessage(WsaSocket &socket, ru::org::codingteam::styx::Message &message);
 
 private:
-	static DWORD WINAPI loop(LPVOID self);
+	static void _cdecl loop(void *self);
 
 	bool _started;
-	DWORD _threadId;
+	uintptr_t _threadId;
 	Handle _queueEventHandle;
 
 	concurrency::concurrent_queue<ru::org::codingteam::styx::Message> _messageQueue;
