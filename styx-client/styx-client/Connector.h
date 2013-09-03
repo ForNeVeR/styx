@@ -1,7 +1,9 @@
 #pragma once
 
-#include <concurrent_queue.h>
 #include <memory>
+#include <vector>
+
+#include <concurrent_queue.h>
 
 #include "MessageDef.pb.h"
 #include "MessageTypeDef.pb.h"
@@ -23,7 +25,7 @@ public:
 	void queueMessage(const ru::org::codingteam::styx::Message &message);
 
 	void sendLogin(WsaSocket &socket);
-	void sendMessage(WsaSocket &socket, ru::org::codingteam::styx::Message &message);
+	void sendMessage(WsaSocket &socket, const ru::org::codingteam::styx::Message &message);
 
 private:
 	static void _cdecl loop(void *self);
@@ -31,6 +33,7 @@ private:
 	bool _started;
 	uintptr_t _threadId;
 	Handle _queueEventHandle;
+	std::vector<char> _socketBuffer;
 
 	concurrency::concurrent_queue<ru::org::codingteam::styx::Message> _messageQueue;
 

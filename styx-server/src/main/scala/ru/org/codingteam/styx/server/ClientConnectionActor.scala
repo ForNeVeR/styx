@@ -53,7 +53,7 @@ class ClientConnectionActor extends Actor with ActorLogging {
 	private def sendMessage(message: Message) = {
 		val messageType = getMessageType(message)
 		val length = message.getSerializedSize
-		val bytes = ByteBuffer.allocate(8 + length).putInt(messageType).putInt(length).array
+		val bytes = ByteBuffer.allocate(8).putInt(messageType).putInt(length).array
 		val byteString = ByteString.fromArray(bytes, 0, bytes.length) ++ message.toByteString.toByteArray
 
 		log.info(s"Sending message $message")
@@ -89,7 +89,7 @@ class ClientConnectionActor extends Actor with ActorLogging {
 			case m: ru.org.codingteam.styx.ErrorDef.Error =>
 				MessageType.ProtocolError_VALUE
 			case m: LoginResult =>
-				MessageType.LoginRequest_VALUE
+				MessageType.LoginResponse_VALUE
 		}
 	}
 }

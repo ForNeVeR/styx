@@ -3,9 +3,12 @@
 #include <array>
 #include <exception>
 
+#include <boost/log/trivial.hpp>
+
 #include <process.h>
 
 #include "LoginDef.pb.h"
+#include "LoginResultDef.pb.h"
 #include "MemoryUtils.h"
 #include "Synchronizer.h"
 #include "WsaEvent.h"
@@ -18,6 +21,7 @@ Connector::Connector()
 	: _started(false),
 	_threadId(0),
 	_queueEventHandle(::CreateEventW(nullptr, false, false, L"ConnectorQueueEvent")),
+	_socketBuffer(),
 	_messageQueue()
 {
 }
@@ -105,18 +109,26 @@ void _cdecl Connector::loop(void *self)
 	
 	while (true) // TODO: Find the way to stop the thread.
 	{
-		std::array<HANDLE, 2> events = { connector->_queueEventHandle, eventHandle };
-		auto waitResult = WaitForMultipleObjects(static_cast<DWORD>(events.size()), events.data(), false, INFINITE);
-		switch (waitResult)
+		try
 		{
-		case WAIT_OBJECT_0:
-			connector->dispatchMessages(synchronizer, socket);
-			break;
-		case WAIT_OBJECT_0 + 1:
-			connector->dispatchData(synchronizer, socket);
-			break;
-		default:
-			throw std::exception("Wait failed");
+			std::array<HANDLE, 2> events = { connector->_queueEventHandle, eventHandle };
+			auto waitResult = WaitForMultipleObjects(static_cast<DWORD>(events.size()), events.data(), false, INFINITE);
+			switch (waitResult)
+			{
+			case WAIT_OBJECT_0:
+				connector->dispatchMessages(synchronizer, socket);
+				break;
+			case WAIT_OBJECT_0 + 1:
+				connector->dispatchData(synchronizer, socket);
+				break;
+			default:
+				throw std::exception("Wait failed");
+			}
+		}
+		catch (std::exception &exception)
+		{
+			BOOST_LOG_TRIVIAL(error) << exception.what();
+			return;
 		}
 	}
 }
@@ -132,8 +144,61 @@ void Connector::dispatchMessages(Synchronizer &synchronizer, WsaSocket &socket)
 
 void Connector::dispatchData(Synchronizer &synchronizer, WsaSocket &socket)
 {
-	// TODO: Receive data from the socket.
-	// TODO: Call proper synchronizer function.
+	uint8_t buffer[1024];
+	
+	auto dataSize = 0;
+	while (dataSize = socket.recv(buffer, sizeof(buffer)))
+	{
+		if (dataSize == SOCKET_ERROR)
+		{
+			auto code = WSAGetLastError();
+			if (code == WSAEWOULDBLOCK)
+			{
+				// Yup, this is normal. No time to explain, just return.
+				return;
+			}
+
+			throw WsaException("recv error", code);
+		}
+
+		for (int i = 0; i < dataSize; ++i)
+		{
+			_socketBuffer.push_back(buffer[i]);
+		}
+
+		auto size = _socketBuffer.size();
+		if (size >= 8)
+		{
+			auto data = _socketBuffer.data();
+			auto intPtr = reinterpret_cast<const uint32_t*>(data);
+			auto type = ntohl(intPtr[0]);
+			auto length = ntohl(intPtr[1]);
+			if (size <= 8 + length)
+			{
+				continue;
+			}
+
+			auto body = data + 8;
+			switch (type)
+			{
+			case MessageType::LoginResponse:
+				{
+					auto loginResponse = LoginResult();
+					if (!loginResponse.ParseFromArray(body, length))
+					{
+						throw std::exception("Cannot parse login response");
+					}
+
+					synchronizer.dispatchMessage(*this, socket, loginResponse);
+				}
+				break;
+			default:
+				throw std::exception("Unknown message type");
+			}
+
+			_socketBuffer.erase(_socketBuffer.begin(), _socketBuffer.begin() + length);
+		}
+	}
 }
 
 void Connector::sendLogin(WsaSocket &socket)
@@ -147,7 +212,7 @@ void Connector::sendLogin(WsaSocket &socket)
 	sendDatagram(socket, MessageType::LoginRequest, message);
 }
 
-void Connector::sendMessage(WsaSocket &socket, Message &message)
+void Connector::sendMessage(WsaSocket &socket, const Message &message)
 {
 	// TODO: send the message.
 	// sendDatagram(socket, MessageType::MessageRequest, message);

@@ -56,6 +56,11 @@ void WsaSocket::send(const std::string &string)
 	send(string.c_str(), string.length());
 }
 
+int WsaSocket::recv(std::uint8_t * const buffer, int length)
+{
+	return ::recv(handle(), reinterpret_cast<char*>(buffer), length, 0);
+}
+
 SOCKET WsaSocket::handle() const
 {
 	return _socket;
