@@ -89,7 +89,7 @@ class ClientConnectionActor extends Actor with ActorLogging {
 			case m: ru.org.codingteam.styx.ErrorDef.Error =>
 				MessageType.ProtocolError_VALUE
 			case m: LoginResult =>
-				MessageType.LoginRequest_VALUE
+				MessageType.LoginResponse_VALUE
 		}
 	}
 }
