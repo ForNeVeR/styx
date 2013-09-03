@@ -3,6 +3,8 @@
 #include <array>
 #include <exception>
 
+#include <boost/log/trivial.hpp>
+
 #include <process.h>
 
 #include "LoginDef.pb.h"
@@ -107,18 +109,26 @@ void _cdecl Connector::loop(void *self)
 	
 	while (true) // TODO: Find the way to stop the thread.
 	{
-		std::array<HANDLE, 2> events = { connector->_queueEventHandle, eventHandle };
-		auto waitResult = WaitForMultipleObjects(static_cast<DWORD>(events.size()), events.data(), false, INFINITE);
-		switch (waitResult)
+		try
 		{
-		case WAIT_OBJECT_0:
-			connector->dispatchMessages(synchronizer, socket);
-			break;
-		case WAIT_OBJECT_0 + 1:
-			connector->dispatchData(synchronizer, socket);
-			break;
-		default:
-			throw std::exception("Wait failed");
+			std::array<HANDLE, 2> events = { connector->_queueEventHandle, eventHandle };
+			auto waitResult = WaitForMultipleObjects(static_cast<DWORD>(events.size()), events.data(), false, INFINITE);
+			switch (waitResult)
+			{
+			case WAIT_OBJECT_0:
+				connector->dispatchMessages(synchronizer, socket);
+				break;
+			case WAIT_OBJECT_0 + 1:
+				connector->dispatchData(synchronizer, socket);
+				break;
+			default:
+				throw std::exception("Wait failed");
+			}
+		}
+		catch (std::exception &exception)
+		{
+			BOOST_LOG_TRIVIAL(error) << exception.what();
+			return;
 		}
 	}
 }
@@ -141,7 +151,14 @@ void Connector::dispatchData(Synchronizer &synchronizer, WsaSocket &socket)
 	{
 		if (dataSize == SOCKET_ERROR)
 		{
-			throw WsaException("recv error", WSAGetLastError());
+			auto code = WSAGetLastError();
+			if (code == WSAEWOULDBLOCK)
+			{
+				// Yup, this is normal. No time to explain, just return.
+				return;
+			}
+
+			throw WsaException("recv error", code);
 		}
 
 		for (int i = 0; i < dataSize; ++i)
