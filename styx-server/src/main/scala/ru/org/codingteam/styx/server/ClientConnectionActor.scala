@@ -53,7 +53,7 @@ class ClientConnectionActor extends Actor with ActorLogging {
 	private def sendMessage(message: Message) = {
 		val messageType = getMessageType(message)
 		val length = message.getSerializedSize
-		val bytes = ByteBuffer.allocate(8 + length).putInt(messageType).putInt(length).array
+		val bytes = ByteBuffer.allocate(8).putInt(messageType).putInt(length).array
 		val byteString = ByteString.fromArray(bytes, 0, bytes.length) ++ message.toByteString.toByteArray
 
 		log.info(s"Sending message $message")
