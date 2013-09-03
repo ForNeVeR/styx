@@ -1,5 +1,7 @@
 #include "Synchronizer.h"
 
+#include <boost/log/trivial.hpp>
+
 #include "Connector.h"
 
 using namespace ru::org::codingteam::styx;
@@ -39,6 +41,7 @@ void Synchronizer::dispatchMessage(Connector &connector, WsaSocket &socket, cons
 	{
 	case SynchronizerState::Handshake:
 		_state = SynchronizerState::Hashing;
+		BOOST_LOG_TRIVIAL(info) << "Successfully logged in";
 		hashingStep(connector, socket);
 		break;
 	default:
