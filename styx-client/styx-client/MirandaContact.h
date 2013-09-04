@@ -2,14 +2,19 @@
 
 #include <string>
 
+#include <boost/optional.hpp>
+
 #include "WindowsIncludes.h"
 
 class MirandaContact
 {
 public:
-	static MirandaContact GetFirst();
+	static boost::optional<MirandaContact> fromHandle(const HANDLE contact);
 	
-	MirandaContact(HANDLE handle);
+	static boost::optional<MirandaContact> getFirst();
+	static boost::optional<MirandaContact> getNext(const MirandaContact &contact);
+	
+	MirandaContact(const HANDLE handle);
 
 	HANDLE handle() const;
 	std::wstring uid() const;

@@ -6,7 +6,25 @@
 #include <m_contacts.h>
 #include <m_core.h>
 
-MirandaContact::MirandaContact(HANDLE handle)
+boost::optional<MirandaContact> MirandaContact::fromHandle(const HANDLE handle)
+{
+	return handle ? boost::make_optional(MirandaContact(handle)) : boost::optional<MirandaContact>();
+}
+
+boost::optional<MirandaContact> MirandaContact::getFirst()
+{
+	auto handle = db_find_first();
+	return fromHandle(handle);
+}
+
+boost::optional<MirandaContact> MirandaContact::getNext(const MirandaContact &contact)
+{
+	auto prevHandle = contact.handle();
+	auto handle = db_find_next(prevHandle);
+	return fromHandle(handle);
+}
+
+MirandaContact::MirandaContact(const HANDLE handle)
 	: _handle(handle)
 {
 }
