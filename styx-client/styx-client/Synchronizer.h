@@ -13,6 +13,9 @@ public:
 	Synchronizer();
 
 	void dispatchConnected(Connector &connector, WsaSocket &socket);
+	void dispatchContactAdded(Connector &connector, WsaSocket &socket);
+	void dispatchContactDeleted(Connector &connector, WsaSocket &socket);
+
 	void dispatchMessage(Connector &connector, WsaSocket &socket, const ru::org::codingteam::styx::Message &message);
 	void dispatchMessage(Connector &connector, WsaSocket &socket, const ru::org::codingteam::styx::LoginResult &message);
 

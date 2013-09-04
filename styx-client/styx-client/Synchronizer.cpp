@@ -17,6 +17,16 @@ void Synchronizer::dispatchConnected(Connector &connector, WsaSocket &socket)
 	connector.sendLogin(socket);
 }
 
+void Synchronizer::dispatchContactAdded(Connector &connector, WsaSocket &socket)
+{
+	// TODO: implement
+}
+
+void Synchronizer::dispatchContactDeleted(Connector &connector, WsaSocket &socket)
+{
+	// TODO: implement
+}
+
 void Synchronizer::dispatchMessage(Connector &connector, WsaSocket &socket, const Message &message)
 {
 	switch (_state)
