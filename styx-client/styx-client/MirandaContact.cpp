@@ -6,10 +6,20 @@
 #include <m_contacts.h>
 #include <m_core.h>
 
-std::wstring MirandaContact::GetUID(HANDLE contactHandle)
+MirandaContact::MirandaContact(HANDLE handle)
+	: _handle(handle)
+{
+}
+
+HANDLE MirandaContact::handle() const
+{
+	return _handle;
+}
+
+std::wstring MirandaContact::uid() const
 {
 	auto contactInfo = CONTACTINFO();
-	contactInfo.hContact = contactHandle;
+	contactInfo.hContact = _handle;
 	contactInfo.dwFlag = CNF_UNIQUEID | CNF_UNICODE;
 
 	if (CallService(MS_CONTACT_GETCONTACTINFO, 0, reinterpret_cast<LPARAM>(&contactInfo)))

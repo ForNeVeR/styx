@@ -4,8 +4,17 @@
 
 #include "WindowsIncludes.h"
 
-struct MirandaContact
+class MirandaContact
 {
-	static std::wstring GetUID(HANDLE contactHandle);
+public:
+	static MirandaContact GetFirst();
+	
+	MirandaContact(HANDLE handle);
+
+	HANDLE handle() const;
+	std::wstring uid() const;
+
+private:
+	HANDLE _handle;
 };
 
