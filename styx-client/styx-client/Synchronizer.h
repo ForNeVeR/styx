@@ -1,8 +1,12 @@
 #pragma once
+
 #include "SynchronizerState.h"
+
+#include <boost/optional.hpp>
 
 #include "LoginResultDef.pb.h"
 #include "MessageDef.pb.h"
+#include "MirandaContact.h"
 #include "WsaSocket.h"
 
 class Connector;
@@ -21,7 +25,9 @@ public:
 
 private:
 	SynchronizerState _state;
+	boost::optional<MirandaContact> _contact;
 
+	boost::optional<MirandaContact> getActualContact();
 	void hashingStep(Connector &connector, WsaSocket &socket);
 };
 

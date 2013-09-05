@@ -7,7 +7,8 @@
 using namespace ru::org::codingteam::styx;
 
 Synchronizer::Synchronizer()
-	: _state(SynchronizerState::NotConnected)
+	: _state(SynchronizerState::NotConnected),
+	_contact()
 {
 }
 
@@ -52,6 +53,8 @@ void Synchronizer::dispatchMessage(Connector &connector, WsaSocket &socket, cons
 	case SynchronizerState::Handshake:
 		_state = SynchronizerState::Hashing;
 		BOOST_LOG_TRIVIAL(info) << "Successfully logged in";
+		_contact = MirandaContact::getFirst();
+		// TODO: Get first contact message
 		hashingStep(connector, socket);
 		break;
 	default:
@@ -61,5 +64,12 @@ void Synchronizer::dispatchMessage(Connector &connector, WsaSocket &socket, cons
 
 void Synchronizer::hashingStep(Connector &connector, WsaSocket &socket)
 {
-	// TODO: do single hashing step.
+	if (!_contact)
+	{
+		_state = SynchronizerState::Messaging;
+		return;
+	}
+
+	// TODO: Get current message.
+	// TODO: If current message is `none`, get next contact and set its first message as current.
 }
