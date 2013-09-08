@@ -18,6 +18,8 @@ public:
 
 	HANDLE handle() const;
 	std::wstring uid() const;
+	boost::optional<HANDLE> getFirstEventHandle() const;
+	boost::optional<HANDLE> getNextEventHandle(HANDLE handle) const;
 
 private:
 	HANDLE _handle;

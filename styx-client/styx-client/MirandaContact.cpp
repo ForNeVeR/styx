@@ -67,3 +67,15 @@ std::wstring MirandaContact::uid() const
 
 	return stream.str();
 }
+
+boost::optional<HANDLE> MirandaContact::getFirstEventHandle() const
+{
+	auto handle = db_event_first(_handle);
+	return handle ? boost::make_optional(handle) : boost::optional<HANDLE>();
+}
+
+boost::optional<HANDLE> MirandaContact::getNextEventHandle(HANDLE handle) const
+{
+	auto nextHandle = db_event_next(handle);
+	return nextHandle ? boost::make_optional(nextHandle) : boost::optional<HANDLE>();
+}

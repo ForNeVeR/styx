@@ -26,6 +26,7 @@ public:
 private:
 	SynchronizerState _state;
 	boost::optional<MirandaContact> _contact;
+	boost::optional<HANDLE> _eventHandle;
 
 	boost::optional<MirandaContact> getActualContact();
 	void hashingStep(Connector &connector, WsaSocket &socket);
