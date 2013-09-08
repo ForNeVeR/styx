@@ -35,7 +35,7 @@ class StorageActor extends Actor with ActorLogging {
 
 	private def getMessages(clientName: String, protocol: String, contactUId: String, time: DateTime, count: Int) = {
 		val statement = connection.prepareStatement(
-			s"""select top $count direction, datetime
+			s"""select top $count direction, datetime, text
 			   |from message
 			   |where client = ? and protocol = ? and contact = ? and datetime >= ?
 			""".stripMargin)
@@ -50,7 +50,8 @@ class StorageActor extends Actor with ActorLogging {
 				while (resultSet.next()) {
 					val direction = Direction.valueOf(resultSet.getInt("direction"))
 					val time = new DateTime(resultSet.getDate("datetime").getTime)
-					val message = new MessageInfo(protocol, contactUId, direction, time)
+					val text = resultSet.getString("text")
+					val message = new MessageInfo(protocol, contactUId, direction, time, text)
 					messages += message
 				}
 
@@ -136,7 +137,8 @@ class StorageActor extends Actor with ActorLogging {
 			  | protocol varchar,
 			  | contact varchar,
 			  | direction integer,
-			  | datetime datetime
+			  | datetime datetime,
+			  | text varchar
 			  |)""".stripMargin)
 		try {
 			statement.execute()
