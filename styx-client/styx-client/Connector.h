@@ -5,6 +5,7 @@
 
 #include <concurrent_queue.h>
 
+#include "ChunkHashDef.pb.h"
 #include "MessageDef.pb.h"
 #include "MessageTypeDef.pb.h"
 #include "Handle.h"
@@ -26,6 +27,7 @@ public:
 
 	void sendLogin(WsaSocket &socket);
 	void sendMessage(WsaSocket &socket, const ru::org::codingteam::styx::Message &message);
+	void sendChunkHash(WsaSocket &socket, const ru::org::codingteam::styx::ChunkHash &chunkHash);
 
 private:
 	static void _cdecl loop(void *self);

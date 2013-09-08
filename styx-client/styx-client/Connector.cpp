@@ -218,6 +218,11 @@ void Connector::sendMessage(WsaSocket &socket, const Message &message)
 	// sendDatagram(socket, MessageType::MessageRequest, message);
 }
 
+void Connector::sendChunkHash(WsaSocket &socket, const ChunkHash &chunkHash)
+{
+	sendDatagram(socket, MessageType::ChunkHashRequest, chunkHash);
+}
+
 void Connector::sendDatagram(WsaSocket &socket, const MessageType &type, const google::protobuf::Message &message)
 {
 	auto size = message.ByteSize();
