@@ -37,7 +37,7 @@ All client messages are sorted by UTC date. Then they are chunked with the rolli
     				client_send(Message)
     				server_send(MessageResult)
 
-If a message is received by client while hashing stage is performed, and this message were put inso one of the already synced chunks, then the client should restart the hashing from the changed chunk.
+If a message is received by client while hashing stage is performed, and this message were put into one of the already synced chunks, then the client should restart the hashing from the changed chunk.
 
 If a message is received by the server while hashing stage is performed, server should notify the client about that by the flags inside the next MessageResult packet. Client then should restart the hashing from the changed chunk.
 
