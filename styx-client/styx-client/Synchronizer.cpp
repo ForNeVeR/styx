@@ -107,6 +107,8 @@ void Synchronizer::hashingStep(Connector &connector, WsaSocket &socket)
 	
 	auto hashValue = HashingHelper::calculateHash(message.get());
 	auto chunkHash = ChunkHash();
+	chunkHash.set_protocol(message->protocol());
+	chunkHash.set_userid(message->user_id());
 	chunkHash.set_timestamp(message->timestamp());
 	chunkHash.set_count(1);
 	chunkHash.set_hash(hashValue);
