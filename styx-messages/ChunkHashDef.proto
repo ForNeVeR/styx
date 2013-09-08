@@ -1,0 +1,7 @@
+package ru.org.codingteam.styx;
+
+message ChunkHash {
+	required int64 timestamp = 1;
+	required int32 count = 2;
+	required int64 hash = 3;
+}

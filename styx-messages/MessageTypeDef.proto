@@ -4,4 +4,5 @@ enum MessageType {
 	 ProtocolError = 1;
 	 LoginRequest = 2;
 	 LoginResponse = 3;
+	 ChunkHashRequest = 4;
 }

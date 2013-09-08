@@ -156,8 +156,10 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="ChunkHashDef.pb.cc" />
     <ClCompile Include="Connector.cpp" />
     <ClCompile Include="Handle.cpp" />
+    <ClCompile Include="HashingHelper.cpp" />
     <ClCompile Include="LoginDef.pb.cc" />
     <ClCompile Include="LoginResultDef.pb.cc" />
     <ClCompile Include="MessageDef.pb.cc" />
@@ -174,8 +176,10 @@
     <ClCompile Include="WsaSocket.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="ChunkHashDef.pb.h" />
     <ClInclude Include="Connector.h" />
     <ClInclude Include="Handle.h" />
+    <ClInclude Include="HashingHelper.h" />
     <ClInclude Include="LoginDef.pb.h" />
     <ClInclude Include="LoginResultDef.pb.h" />
     <ClInclude Include="MemoryUtils.h" />
