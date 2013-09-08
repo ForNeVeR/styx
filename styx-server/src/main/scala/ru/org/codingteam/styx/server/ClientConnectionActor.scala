@@ -9,7 +9,11 @@ import ru.org.codingteam.styx.MessageTypeDef.MessageType
 import ru.org.codingteam.styx.LoginDef.Login
 import ru.org.codingteam.styx.LoginResultDef.LoginResult
 
-class ClientConnectionActor extends Actor with ActorLogging {
+object ClientConnectionActor {
+	def props(storage: ActorRef) = Props(new ClientConnectionActor(storage))
+}
+
+class ClientConnectionActor(val storage: ActorRef) extends Actor with ActorLogging {
 	private var clientSocket: Option[Handle] = None
 	private var buffer = ByteString()
 	private var clientActor: ActorRef = null
