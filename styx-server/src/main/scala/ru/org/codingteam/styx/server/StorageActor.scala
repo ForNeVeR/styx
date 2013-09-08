@@ -2,8 +2,11 @@ package ru.org.codingteam.styx.server
 
 import akka.actor.{ActorLogging, Actor}
 import org.h2.jdbcx.JdbcConnectionPool
-import java.sql.{PreparedStatement, Statement, Connection}
+import java.sql.{Timestamp, PreparedStatement, Connection}
 import org.joda.time.DateTime
+import scala.collection.mutable.ArrayBuffer
+import ru.org.codingteam.styx.data.MessageInfo
+import ru.org.codingteam.styx.MessageDef.Message.Direction
 
 case class GetMessages(clientName: String, protocol: String, contactUId: String, time: DateTime, count: Int)
 
@@ -31,7 +34,33 @@ class StorageActor extends Actor with ActorLogging {
 	}
 
 	private def getMessages(clientName: String, protocol: String, contactUId: String, time: DateTime, count: Int) = {
+		val statement = connection.prepareStatement(
+			s"""select top $count direction, datetime
+			   |from message
+			   |where client = ? and protocol = ? and contact = ? and datetime >= ?
+			""".stripMargin)
+		try {
+			statement.setString(1, clientName)
+			statement.setString(2, protocol)
+			statement.setString(3, contactUId)
+			statement.setTimestamp(4, new Timestamp(time.getMillis))
+			val resultSet = statement.executeQuery()
+			try {
+				val messages = new ArrayBuffer[MessageInfo]()
+				while (resultSet.next()) {
+					val direction = Direction.valueOf(resultSet.getInt("direction"))
+					val time = new DateTime(resultSet.getDate("datetime").getTime)
+					val message = new MessageInfo(protocol, contactUId, direction, time)
+					messages += message
+				}
 
+				messages
+			} finally {
+				resultSet.close()
+			}
+		} finally {
+			statement.close()
+		}
 	}
 
 	private def checkDatabaseCreated() = {
@@ -104,6 +133,7 @@ class StorageActor extends Actor with ActorLogging {
 		val statement = connection.prepareStatement(
 			"""create table message (
 			  | client varchar,
+			  | protocol varchar,
 			  | contact varchar,
 			  | direction integer,
 			  | datetime datetime
