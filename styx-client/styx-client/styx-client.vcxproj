@@ -163,6 +163,7 @@
     <ClCompile Include="MessageDef.pb.cc" />
     <ClCompile Include="MessageTypeDef.pb.cc" />
     <ClCompile Include="MirandaContact.cpp" />
+    <ClCompile Include="MessageFactory.cpp" />
     <ClCompile Include="Plugin.cpp" />
     <ClCompile Include="PluginCore.cpp" />
     <ClCompile Include="StringUtils.cpp" />
@@ -181,6 +182,7 @@
     <ClInclude Include="MessageDef.pb.h" />
     <ClInclude Include="MessageTypeDef.pb.h" />
     <ClInclude Include="MirandaContact.h" />
+    <ClInclude Include="MessageFactory.h" />
     <ClInclude Include="PluginCore.h" />
     <ClInclude Include="StringUtils.h" />
     <ClInclude Include="Synchronizer.h" />
