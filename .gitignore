@@ -17,3 +17,4 @@ styx-server/target
 *.sdf
 *.suo
 *.user
+*.db
