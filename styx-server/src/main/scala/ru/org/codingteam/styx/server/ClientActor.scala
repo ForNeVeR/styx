@@ -11,6 +11,7 @@ import ru.org.codingteam.styx.data.MessageInfo
 import scala.concurrent.Await
 import scala.concurrent.duration._
 import scala.language.postfixOps
+import ru.org.codingteam.styx.ChunkHashResultDef.ChunkHashResult
 
 class ClientActor(val storage: ActorRef) extends Actor with ActorLogging {
 	private var state: SynchronizerState = NotConnected
@@ -43,24 +44,24 @@ class ClientActor(val storage: ActorRef) extends Actor with ActorLogging {
 		state match {
 			case Hashing =>
 				// TODO: Use proper user name here.
-				val futureMessages = ask(storage, GetMessages(
-					"user",
-					request.getProtocol,
-					request.getUserId,
-					new DateTime(request.getTimestamp),
-					request.getCount))(1 minute).mapTo[ArrayBuffer[MessageInfo]]
+				val futureMessages = ask(
+					storage,
+					GetMessages(
+						"user",
+						request.getProtocol,
+						request.getUserId,
+						new DateTime(request.getTimestamp),
+						request.getCount))(1 minute).mapTo[ArrayBuffer[MessageInfo]]
 				val messages = Await.result(futureMessages, 1 minute)
 				val count = messages.size
 				if (count == request.getCount) {
 					val hash = calculateHash(messages)
 					if (hash == request.getHash) {
-						// TODO: return positive HashResult
-						return null
+						return ChunkHashResult.newBuilder().setPositive(true).build()
 					}
 				}
 
-				// TODO: Return negative HashResult
-				null
+				ChunkHashResult.newBuilder().setPositive(false).build()
 			case _ =>
 				createError("Cannot process hash when not in Hashing state")
 		}

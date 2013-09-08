@@ -1,0 +1,5 @@
+package ru.org.codingteam.styx;
+
+message ChunkHashResult {
+	required bool positive = 1;
+}

@@ -5,4 +5,5 @@ enum MessageType {
 	 LoginRequest = 2;
 	 LoginResponse = 3;
 	 ChunkHashRequest = 4;
+	 ChunkHashResponse = 5;
 }
