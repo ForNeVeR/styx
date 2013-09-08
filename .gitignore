@@ -16,4 +16,4 @@ styx-server/target
 *.opensdf
 *.sdf
 *.suo
-*.vcxproj.user
+*.user
