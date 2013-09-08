@@ -43,6 +43,7 @@ private:
 
 	void dispatchMessages(Synchronizer &synchronizer, WsaSocket &socket);
 	void dispatchData(Synchronizer &synchronizer, WsaSocket &socket);
+	template<class T> T readMessage(void *data, int size);
 
 	void sendDatagram(
 		WsaSocket &socket,

@@ -70,10 +70,23 @@ void Synchronizer::dispatchMessage(Connector &connector, WsaSocket &socket, cons
 	}
 }
 
+void Synchronizer::dispatchMessage(Connector &connector, WsaSocket &socket, const ChunkHashResult &message)
+{
+	if (message.positive())
+	{
+		hashingStep(connector, socket);
+	}
+	else
+	{
+		// TODO: resend current message.
+	}
+}
+
 void Synchronizer::hashingStep(Connector &connector, WsaSocket &socket)
 {
 	if (!_contact)
 	{
+		BOOST_LOG_TRIVIAL(info) << "Enter messaging state";
 		_state = SynchronizerState::Messaging;
 		return;
 	}

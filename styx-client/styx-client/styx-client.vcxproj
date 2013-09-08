@@ -157,6 +157,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="ChunkHashDef.pb.cc" />
+    <ClCompile Include="ChunkHashResultDef.pb.cc" />
     <ClCompile Include="Connector.cpp" />
     <ClCompile Include="Handle.cpp" />
     <ClCompile Include="HashingHelper.cpp" />
@@ -177,6 +178,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="ChunkHashDef.pb.h" />
+    <ClInclude Include="ChunkHashResultDef.pb.h" />
     <ClInclude Include="Connector.h" />
     <ClInclude Include="Handle.h" />
     <ClInclude Include="HashingHelper.h" />
