@@ -39,7 +39,7 @@ class StorageActor extends Actor with ActorLogging {
 			"select count(*) from information_schema.tables where table_name = ?")
 		try {
 			statement.setString(1, VersionTableName)
-			val count = executeScalar(statement).getOrElse(0)
+			val count = executeScalar(statement).getOrElse(0L)
 			count > 0
 		} finally {
 			statement.close()
@@ -78,7 +78,7 @@ class StorageActor extends Actor with ActorLogging {
 	}
 
 	private def getVersion() = {
-		val statement = connection.prepareStatement(s"select top 1 from $VersionTableName")
+		val statement = connection.prepareStatement(s"select top 1 version from $VersionTableName")
 		try {
 			executeScalar[Int](statement).getOrElse(0)
 		} finally {
@@ -87,7 +87,7 @@ class StorageActor extends Actor with ActorLogging {
 	}
 
 	private def setVersion(version: Int) = {
-		def insertVersion() = connection.prepareStatement(s"insert into $VersionTableName values(?)")
+		def insertVersion() = connection.prepareStatement(s"insert into $VersionTableName (version) values(?)")
 		def updateVersion() = connection.prepareStatement(s"update $VersionTableName set version = ?")
 
 		val recordCount = getRecordCount(VersionTableName)
@@ -118,7 +118,7 @@ class StorageActor extends Actor with ActorLogging {
 	private def getRecordCount(tableName: String) = {
 		val statement = connection.prepareStatement(s"select count(*) from $tableName")
 		try {
-			executeScalar(statement).getOrElse(0)
+			executeScalar(statement).getOrElse(0L)
 		} finally {
 			statement.close()
 		}
