@@ -226,8 +226,7 @@ void Connector::sendLogin(WsaSocket &socket)
 
 void Connector::sendMessage(WsaSocket &socket, const Message &message)
 {
-	// TODO: send the message.
-	// sendDatagram(socket, MessageType::MessageRequest, message);
+	sendDatagram(socket, MessageType::MessageRequest, message);
 }
 
 void Connector::sendChunkHash(WsaSocket &socket, const ChunkHash &chunkHash)

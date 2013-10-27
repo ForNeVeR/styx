@@ -12,7 +12,8 @@ using namespace ru::org::codingteam::styx;
 Synchronizer::Synchronizer()
 	: _state(SynchronizerState::NotConnected),
 	_contact(),
-	_eventHandle()
+	_eventHandle(),
+	_message()
 {
 }
 
@@ -78,7 +79,7 @@ void Synchronizer::dispatchMessage(Connector &connector, WsaSocket &socket, cons
 	}
 	else
 	{
-		// TODO: resend current message.
+		connector.sendMessage(socket, _message.get());
 	}
 }
 
@@ -126,5 +127,6 @@ void Synchronizer::hashingStep(Connector &connector, WsaSocket &socket)
 	chunkHash.set_count(1);
 	chunkHash.set_hash(hashValue);
 
+	_message = message;
 	connector.sendChunkHash(socket, chunkHash);
 }

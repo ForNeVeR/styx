@@ -6,4 +6,6 @@ enum MessageType {
 	 LoginResponse = 3;
 	 ChunkHashRequest = 4;
 	 ChunkHashResponse = 5;
+	 MessageRequest = 6;
+	 MessageResponse = 7;
 }
