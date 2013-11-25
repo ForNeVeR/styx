@@ -167,30 +167,32 @@ void Connector::dispatchData(Synchronizer &synchronizer, WsaSocket &socket)
 			_socketBuffer.push_back(buffer[i]);
 		}
 
+		const auto headerSize = sizeof(uint32_t) * 2;
+
 		auto size = _socketBuffer.size();
-		if (size >= 8)
+		if (size >= headerSize)
 		{
 			auto data = _socketBuffer.data();
 			auto intPtr = reinterpret_cast<const uint32_t*>(data);
 			auto type = ntohl(intPtr[0]);
 			auto length = ntohl(intPtr[1]);
-			if (size <= 8 + length)
+			if (size < headerSize + length)
 			{
 				continue;
 			}
 
-			auto body = data + 8;
+			auto body = data + headerSize;
 			switch (type)
 			{
 			case MessageType::LoginResponse:
 				{
-					auto loginResponse = readMessage<LoginResult>(data, length);
+					auto loginResponse = readMessage<LoginResult>(body, length);
 					synchronizer.dispatchMessage(*this, socket, loginResponse);
 				}
 				break;
 			case MessageType::ChunkHashResponse:
 				{
-					auto chunkHashResult = readMessage<ChunkHashResult>(data, length);
+					auto chunkHashResult = readMessage<ChunkHashResult>(body, length);
 					synchronizer.dispatchMessage(*this, socket, chunkHashResult);
 				}
 			default:

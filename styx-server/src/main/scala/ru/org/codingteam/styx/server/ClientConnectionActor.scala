@@ -21,7 +21,7 @@ class ClientConnectionActor(val storage: ActorRef) extends Actor with ActorLoggi
 	private var clientActor: ActorRef = null
 
 	override def preStart() {
-		clientActor = context.actorOf(Props[ClientActor])
+		clientActor = context.actorOf(Props(() => new ClientActor(storage)))
 	}
 
 	def receive = {
