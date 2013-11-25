@@ -182,24 +182,25 @@ void Connector::dispatchData(Synchronizer &synchronizer, WsaSocket &socket)
 			}
 
 			auto body = data + headerSize;
+			auto message = std::vector<char>(body, body + length);
+			_socketBuffer.erase(_socketBuffer.begin(), _socketBuffer.begin() + headerSize + length);
+
 			switch (type)
 			{
 			case MessageType::LoginResponse:
 				{
-					auto loginResponse = readMessage<LoginResult>(body, length);
+					auto loginResponse = readMessage<LoginResult>(message.data(), message.size());
 					synchronizer.dispatchMessage(*this, socket, loginResponse);
 				}
 				break;
 			case MessageType::ChunkHashResponse:
 				{
-					auto chunkHashResult = readMessage<ChunkHashResult>(body, length);
+					auto chunkHashResult = readMessage<ChunkHashResult>(message.data(), message.size());
 					synchronizer.dispatchMessage(*this, socket, chunkHashResult);
 				}
 			default:
 				throw std::exception("Unknown message type");
 			}
-
-			_socketBuffer.erase(_socketBuffer.begin(), _socketBuffer.begin() + length);
 		}
 	}
 }

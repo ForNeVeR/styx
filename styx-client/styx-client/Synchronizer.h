@@ -31,7 +31,9 @@ private:
 	boost::optional<HANDLE> _eventHandle;
 	boost::optional<ru::org::codingteam::styx::Message> _message;
 
-	boost::optional<MirandaContact> getActualContact();
+	void getFirstMessage();
+	void getNextMessage();
+
 	void hashingStep(Connector &connector, WsaSocket &socket);
 };
 

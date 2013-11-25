@@ -58,11 +58,7 @@ void Synchronizer::dispatchMessage(Connector &connector, WsaSocket &socket, cons
 	case SynchronizerState::Handshake:
 		_state = SynchronizerState::Hashing;
 		BOOST_LOG_TRIVIAL(info) << "Successfully logged in";
-		_contact = MirandaContact::getFirst();
-		if (_contact)
-		{
-			_eventHandle = _contact->getFirstEventHandle();
-		}
+		getFirstMessage();
 
 		hashingStep(connector, socket);
 		break;
@@ -83,42 +79,44 @@ void Synchronizer::dispatchMessage(Connector &connector, WsaSocket &socket, cons
 	}
 }
 
+void Synchronizer::getFirstMessage()
+{
+	_contact = MirandaContact::getFirst();
+	getNextMessage();
+}
+
+void Synchronizer::getNextMessage()
+{
+	if (_contact && _eventHandle)
+	{
+		_eventHandle = _contact->getNextEventHandle(*_eventHandle);
+	}
+
+	while (_contact && !_eventHandle)
+	{
+		_eventHandle = _contact->getFirstEventHandle();
+		if (!_eventHandle)
+		{
+			_contact = MirandaContact::getNext(*_contact);
+		}
+	}
+}
+
 void Synchronizer::hashingStep(Connector &connector, WsaSocket &socket)
 {
-	if (!_contact)
+	if (!_contact || !_eventHandle)
 	{
 		BOOST_LOG_TRIVIAL(info) << "Enter messaging state";
 		_state = SynchronizerState::Messaging;
+		
+		_contact = boost::optional<MirandaContact>();
+		_eventHandle = boost::optional<HANDLE>();
+
 		return;
-	}
-
-	if (!_eventHandle)
-	{
-		_contact = MirandaContact::getNext(_contact.get());
-		if (_contact)
-		{
-			_eventHandle = _contact->getFirstEventHandle();
-		}
-		hashingStep(connector, socket);
-		return;
-	}
-
-	// TODO: Now, for simplicity, all chunks are of size 1.
-
-	// Let's find a first valid message.
-	auto message = boost::optional<Message>();
-	while (!message)
-	{
-		auto eventHandle = _eventHandle.get();
-		message = MessageFactory::fromMirandaHandles(_contact->handle(), eventHandle);
-		_eventHandle = _contact->getNextEventHandle(eventHandle);
-		if (_eventHandle)
-		{
-			hashingStep(connector, socket);
-			return;
-		}
 	}
 	
+	// TODO: Now, for simplicity, all chunks are of size 1.
+	auto message = MessageFactory::fromMirandaHandles(_contact->handle(), *_eventHandle);	
 	auto hashValue = HashingHelper::calculateHash(message.get());
 	auto chunkHash = ChunkHash();
 	chunkHash.set_protocol(message->protocol());
