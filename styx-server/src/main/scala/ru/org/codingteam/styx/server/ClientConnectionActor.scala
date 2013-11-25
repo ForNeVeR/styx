@@ -10,6 +10,7 @@ import ru.org.codingteam.styx.LoginDef.Login
 import ru.org.codingteam.styx.LoginResultDef.LoginResult
 import ru.org.codingteam.styx.ChunkHashResultDef.ChunkHashResult
 import ru.org.codingteam.styx.ChunkHashDef.ChunkHash
+import ru.org.codingteam.styx.MessageDef
 
 object ClientConnectionActor {
 	def props(storage: ActorRef) = Props(new ClientConnectionActor(storage))
@@ -74,6 +75,7 @@ class ClientConnectionActor(val storage: ActorRef) extends Actor with ActorLoggi
 		val result = messageType match {
 			case MessageType.LoginRequest => Login.parseFrom(stream)
 			case MessageType.ChunkHashRequest => ChunkHash.parseFrom(stream)
+			case MessageType.MessageRequest => MessageDef.Message.parseFrom(stream)
 			case _ => UnknownMessage
 		}
 

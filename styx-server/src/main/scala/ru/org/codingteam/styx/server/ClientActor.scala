@@ -12,6 +12,8 @@ import scala.concurrent.Await
 import scala.concurrent.duration._
 import scala.language.postfixOps
 import ru.org.codingteam.styx.ChunkHashResultDef.ChunkHashResult
+import ru.org.codingteam.styx.MessageDef.Message
+import ru.org.codingteam.styx.MessageResultDef.MessageResult
 
 class ClientActor(val storage: ActorRef) extends Actor with ActorLogging {
 	private var state: SynchronizerState = NotConnected
@@ -21,6 +23,8 @@ class ClientActor(val storage: ActorRef) extends Actor with ActorLogging {
 			sender ! processLoginRequest(loginRequest)
 		case chunkHash: ChunkHash =>
 			sender ! processChunkHash(chunkHash)
+		case message: Message =>
+			sender ! processMessage(message)
 		case UnknownMessage =>
 			log.info("Got unknown message")
 	}
@@ -67,10 +71,33 @@ class ClientActor(val storage: ActorRef) extends Actor with ActorLogging {
 		}
 	}
 
+	private def processMessage(message: Message): com.google.protobuf.Message = {
+		state match {
+			case Hashing =>
+				// TODO: Use proper user name here.
+				val futureStatus = ask(
+					storage,
+					StoreMessage(
+						"user",
+						message.getProtocol,
+						message.getUserId,
+						message.getDirection,
+						new DateTime(message.getTimestamp),
+						message.getText))(1 minute)
+				val status = Await.result(futureStatus, 1 minute)
+				status match {
+					case Ok => MessageResult.newBuilder().setSuccess(true).build()
+					case _ => createError("Cannot store message into a database. Check server log for details.")
+				}
+			case _ =>
+				createError("Cannot process message when not in Hashing state")
+		}
+	}
+
 	private def createError(reason: String) =
 		ru.org.codingteam.styx.ErrorDef.Error.newBuilder().setReason(reason).build()
 
-	private def calculateHash(messages: Iterable[MessageInfo]) = {
+	private def calculateHash(messages: Iterable[MessageInfo]): Long = {
 		// TODO: Use some more complex hash composition tehnique.
 		var hash = 0L
 		for (message <- messages) {
@@ -81,5 +108,7 @@ class ClientActor(val storage: ActorRef) extends Actor with ActorLogging {
 					hash += direction.getNumber
 			}
 		}
+
+		hash
 	}
 }
