@@ -98,7 +98,7 @@ class ClientActor(val storage: ActorRef) extends Actor with ActorLogging {
 		ru.org.codingteam.styx.ErrorDef.Error.newBuilder().setReason(reason).build()
 
 	private def calculateHash(messages: Iterable[MessageInfo]): Long = {
-		// TODO: Use some more complex hash composition tehnique.
+		// TODO: Use some more complex hash composition technique.
 		var hash = 0L
 		for (message <- messages) {
 			message match {
