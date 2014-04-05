@@ -6,6 +6,9 @@
 #include <m_contacts.h>
 #include <m_core.h>
 
+const auto ModuleName = "StyxPlugin";
+const auto LastSentTimestampSettingName = "LastSentTimestamp";
+
 boost::optional<MirandaContact> MirandaContact::fromHandle(const HANDLE handle)
 {
 	return handle ? boost::make_optional(MirandaContact(handle)) : boost::optional<MirandaContact>();
@@ -78,4 +81,10 @@ boost::optional<HANDLE> MirandaContact::getNextEventHandle(HANDLE handle) const
 {
 	auto nextHandle = db_event_next(handle);
 	return nextHandle ? boost::make_optional(nextHandle) : boost::optional<HANDLE>();
+}
+
+boost::optional<int64_t> MirandaContact::getLastSentMessageTimestamp() const
+{
+	auto data = db_get_dw(_handle, ModuleName, LastSentTimestampSettingName, -1UL);
+	return data == -1UL ? boost::optional<int64_t>() : boost::make_optional(static_cast<int64_t>(data));
 }

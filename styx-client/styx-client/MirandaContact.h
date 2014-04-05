@@ -1,5 +1,6 @@
 #pragma once
 
+#include <cstdint>
 #include <string>
 
 #include <boost/optional.hpp>
@@ -20,6 +21,7 @@ public:
 	std::wstring uid() const;
 	boost::optional<HANDLE> getFirstEventHandle() const;
 	boost::optional<HANDLE> getNextEventHandle(HANDLE handle) const;
+	boost::optional<int64_t> MirandaContact::getLastSentMessageTimestamp() const;
 
 private:
 	HANDLE _handle;
