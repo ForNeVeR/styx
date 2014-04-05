@@ -10,6 +10,6 @@ class MessageFactory
 public:
 	static boost::optional<ru::org::codingteam::styx::Message> fromMirandaHandles(
 		const HANDLE contactHandle,
-		const HANDLE dbEvenHandle);
+		const HANDLE dbEventHandle);
 };
 
