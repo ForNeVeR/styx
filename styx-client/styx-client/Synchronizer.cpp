@@ -11,8 +11,6 @@ using namespace ru::org::codingteam::styx;
 
 Synchronizer::Synchronizer()
 	: _state(SynchronizerState::NotConnected),
-	_contact(),
-	_eventHandle(),
 	_message()
 {
 }
@@ -58,8 +56,6 @@ void Synchronizer::dispatchMessage(Connector &connector, WsaSocket &socket, cons
 	case SynchronizerState::Handshake:
 		_state = SynchronizerState::Hashing;
 		BOOST_LOG_TRIVIAL(info) << "Successfully logged in";
-		getFirstMessage();
-
 		hashingStep(connector, socket);
 		break;
 	default:
@@ -79,52 +75,34 @@ void Synchronizer::dispatchMessage(Connector &connector, WsaSocket &socket, cons
 	}
 }
 
-void Synchronizer::getFirstMessage()
-{
-	_contact = MirandaContact::getFirst();
-	getNextMessage();
-}
-
-void Synchronizer::getNextMessage()
-{
-	if (_contact && _eventHandle)
-	{
-		_eventHandle = _contact->getNextEventHandle(*_eventHandle);
-	}
-
-	while (_contact && !_eventHandle)
-	{
-		_eventHandle = _contact->getFirstEventHandle();
-		if (!_eventHandle)
-		{
-			_contact = MirandaContact::getNext(*_contact);
-		}
-	}
-}
-
 void Synchronizer::hashingStep(Connector &connector, WsaSocket &socket)
 {
-	if (!_contact || !_eventHandle)
+	// Loop over all of the contacts:
+	auto contact = MirandaContact::getFirst();
+	while (contact)
 	{
-		BOOST_LOG_TRIVIAL(info) << "Enter messaging state";
-		_state = SynchronizerState::Messaging;
-		
-		_contact = boost::optional<MirandaContact>();
-		_eventHandle = boost::optional<HANDLE>();
+		// TODO: Optimize so we don't need to loop over all contacts and all messages every time.
+		auto lastSentTimestamp = contact->getLastSentMessageTimestamp();
+		auto eventHandle = contact->getFirstEventHandle();
+		while (eventHandle)
+		{
+			auto message = MessageFactory::fromMirandaHandles(contact->handle(), *eventHandle);
+			if (message)
+			{
+				auto messageTimestamp = message->timestamp();
+				if (messageTimestamp > lastSentTimestamp) // TODO: Do something in case we have multiple messages on one timestamp.
+				{
+					connector.sendMessage(socket, *message);
+					return;
+				}
+			}
 
-		return;
+			eventHandle = contact->getNextEventHandle(*eventHandle);
+		}
+
+		contact = MirandaContact::getNext(*contact);
 	}
 	
-	// TODO: Now, for simplicity, all chunks are of size 1.
-	auto message = MessageFactory::fromMirandaHandles(_contact->handle(), *_eventHandle);	
-	auto hashValue = HashingHelper::calculateHash(message.get());
-	auto chunkHash = ChunkHash();
-	chunkHash.set_protocol(message->protocol());
-	chunkHash.set_userid(message->user_id());
-	chunkHash.set_timestamp(message->timestamp());
-	chunkHash.set_count(1);
-	chunkHash.set_hash(hashValue);
-
-	_message = message;
-	connector.sendChunkHash(socket, chunkHash);
+	BOOST_LOG_TRIVIAL(info) << "Enter messaging state";
+	_state = SynchronizerState::Messaging;
 }

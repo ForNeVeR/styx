@@ -27,8 +27,6 @@ public:
 
 private:
 	SynchronizerState _state;
-	boost::optional<MirandaContact> _contact;
-	boost::optional<HANDLE> _eventHandle;
 	boost::optional<ru::org::codingteam::styx::Message> _message;
 
 	void getFirstMessage();
