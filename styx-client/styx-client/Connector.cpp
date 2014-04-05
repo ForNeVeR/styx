@@ -113,7 +113,7 @@ void _cdecl Connector::loop(void *self)
 		try
 		{
 			std::array<HANDLE, 2> events = { connector->_queueEventHandle, eventHandle };
-			auto waitResult = WaitForMultipleObjects(static_cast<DWORD>(events.size()), events.data(), false, INFINITE);
+			auto waitResult = WaitForMultipleObjects(events.size(), events.data(), false, INFINITE);
 			switch (waitResult)
 			{
 			case WAIT_OBJECT_0:
