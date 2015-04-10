@@ -7,6 +7,7 @@
 
 #include <process.h>
 
+#include "ChunkHashResultDef.pb.h"
 #include "LoginDef.pb.h"
 #include "LoginResultDef.pb.h"
 #include "MemoryUtils.h"
@@ -112,7 +113,7 @@ void _cdecl Connector::loop(void *self)
 		try
 		{
 			std::array<HANDLE, 2> events = { connector->_queueEventHandle, eventHandle };
-			auto waitResult = WaitForMultipleObjects(static_cast<DWORD>(events.size()), events.data(), false, INFINITE);
+			auto waitResult = WaitForMultipleObjects(events.size(), events.data(), false, INFINITE);
 			switch (waitResult)
 			{
 			case WAIT_OBJECT_0:
@@ -166,39 +167,53 @@ void Connector::dispatchData(Synchronizer &synchronizer, WsaSocket &socket)
 			_socketBuffer.push_back(buffer[i]);
 		}
 
+		const auto headerSize = sizeof(uint32_t) * 2;
+
 		auto size = _socketBuffer.size();
-		if (size >= 8)
+		if (size >= headerSize)
 		{
 			auto data = _socketBuffer.data();
 			auto intPtr = reinterpret_cast<const uint32_t*>(data);
 			auto type = ntohl(intPtr[0]);
 			auto length = ntohl(intPtr[1]);
-			if (size <= 8 + length)
+			if (size < headerSize + length)
 			{
 				continue;
 			}
 
-			auto body = data + 8;
+			auto body = data + headerSize;
+			auto message = std::vector<char>(body, body + length);
+			_socketBuffer.erase(_socketBuffer.begin(), _socketBuffer.begin() + headerSize + length);
+
 			switch (type)
 			{
 			case MessageType::LoginResponse:
 				{
-					auto loginResponse = LoginResult();
-					if (!loginResponse.ParseFromArray(body, length))
-					{
-						throw std::exception("Cannot parse login response");
-					}
-
+					auto loginResponse = readMessage<LoginResult>(message.data(), message.size());
 					synchronizer.dispatchMessage(*this, socket, loginResponse);
 				}
 				break;
+			case MessageType::ChunkHashResponse:
+				{
+					auto chunkHashResult = readMessage<ChunkHashResult>(message.data(), message.size());
+					synchronizer.dispatchMessage(*this, socket, chunkHashResult);
+				}
 			default:
 				throw std::exception("Unknown message type");
 			}
-
-			_socketBuffer.erase(_socketBuffer.begin(), _socketBuffer.begin() + length);
 		}
 	}
+}
+
+template<class T> T Connector::readMessage(void *data, int size)
+{
+	auto t = T();
+	if (!t.ParseFromArray(data, size))
+	{
+		throw std::exception("Cannot parse object");
+	}
+
+	return t;
 }
 
 void Connector::sendLogin(WsaSocket &socket)
@@ -214,8 +229,12 @@ void Connector::sendLogin(WsaSocket &socket)
 
 void Connector::sendMessage(WsaSocket &socket, const Message &message)
 {
-	// TODO: send the message.
-	// sendDatagram(socket, MessageType::MessageRequest, message);
+	sendDatagram(socket, MessageType::MessageRequest, message);
+}
+
+void Connector::sendChunkHash(WsaSocket &socket, const ChunkHash &chunkHash)
+{
+	sendDatagram(socket, MessageType::ChunkHashRequest, chunkHash);
 }
 
 void Connector::sendDatagram(WsaSocket &socket, const MessageType &type, const google::protobuf::Message &message)

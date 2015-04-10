@@ -8,6 +8,9 @@ import java.nio.ByteBuffer
 import ru.org.codingteam.styx.MessageTypeDef.MessageType
 import ru.org.codingteam.styx.LoginDef.Login
 import ru.org.codingteam.styx.LoginResultDef.LoginResult
+import ru.org.codingteam.styx.ChunkHashResultDef.ChunkHashResult
+import ru.org.codingteam.styx.ChunkHashDef.ChunkHash
+import ru.org.codingteam.styx.MessageDef
 
 object ClientConnectionActor {
 	def props(storage: ActorRef) = Props(new ClientConnectionActor(storage))
@@ -19,7 +22,7 @@ class ClientConnectionActor(val storage: ActorRef) extends Actor with ActorLoggi
 	private var clientActor: ActorRef = null
 
 	override def preStart() {
-		clientActor = context.actorOf(Props[ClientActor])
+		clientActor = context.actorOf(Props(() => new ClientActor(storage)))
 	}
 
 	def receive = {
@@ -71,6 +74,8 @@ class ClientConnectionActor(val storage: ActorRef) extends Actor with ActorLoggi
 		val stream = CodedInputStream.newInstance(buffer.drop(8).take(dataLength).toArray)
 		val result = messageType match {
 			case MessageType.LoginRequest => Login.parseFrom(stream)
+			case MessageType.ChunkHashRequest => ChunkHash.parseFrom(stream)
+			case MessageType.MessageRequest => MessageDef.Message.parseFrom(stream)
 			case _ => UnknownMessage
 		}
 
@@ -94,6 +99,8 @@ class ClientConnectionActor(val storage: ActorRef) extends Actor with ActorLoggi
 				MessageType.ProtocolError_VALUE
 			case m: LoginResult =>
 				MessageType.LoginResponse_VALUE
+			case m: ChunkHashResult =>
+				MessageType.ChunkHashResponse_VALUE
 		}
 	}
 }

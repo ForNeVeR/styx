@@ -8,7 +8,15 @@ import scala.collection.mutable.ArrayBuffer
 import ru.org.codingteam.styx.data.MessageInfo
 import ru.org.codingteam.styx.MessageDef.Message.Direction
 
+case object Ok
 case class GetMessages(clientName: String, protocol: String, contactUId: String, time: DateTime, count: Int)
+case class StoreMessage(
+	clientName: String,
+	protocol: String,
+	contactUID: String,
+	direction: Direction,
+	time: DateTime,
+	text: String)
 
 class StorageActor extends Actor with ActorLogging {
 	val VersionTableName = "VERSION"
@@ -24,6 +32,8 @@ class StorageActor extends Actor with ActorLogging {
 	override def receive = {
 		case GetMessages(clientName, protocol, contact, time, count) =>
 			sender ! getMessages(clientName, protocol, contact, time, count)
+		case StoreMessage(clientName, protocol,contactUID, direction, time, text) =>
+			sender ! storeMessage(clientName, protocol,contactUID, direction, time, text)
 	}
 
 	private def ensureDatabaseInitialized() {
@@ -35,7 +45,7 @@ class StorageActor extends Actor with ActorLogging {
 
 	private def getMessages(clientName: String, protocol: String, contactUId: String, time: DateTime, count: Int) = {
 		val statement = connection.prepareStatement(
-			s"""select top $count direction, datetime
+			s"""select top $count direction, datetime, text
 			   |from message
 			   |where client = ? and protocol = ? and contact = ? and datetime >= ?
 			""".stripMargin)
@@ -50,7 +60,8 @@ class StorageActor extends Actor with ActorLogging {
 				while (resultSet.next()) {
 					val direction = Direction.valueOf(resultSet.getInt("direction"))
 					val time = new DateTime(resultSet.getDate("datetime").getTime)
-					val message = new MessageInfo(protocol, contactUId, direction, time)
+					val text = resultSet.getString("text")
+					val message = new MessageInfo(protocol, contactUId, direction, time, text)
 					messages += message
 				}
 
@@ -58,6 +69,32 @@ class StorageActor extends Actor with ActorLogging {
 			} finally {
 				resultSet.close()
 			}
+		} finally {
+			statement.close()
+		}
+	}
+
+	private def storeMessage(
+		clientName: String,
+		protocol: String,
+	    contactUID: String,
+	    direction: Direction,
+	    time: DateTime,
+	    text: String) = {
+		val statement = connection.prepareStatement(
+			"""insert into message(client, protocol, contact, direction, datetime, text)
+			  |values (?, ?, ?, ?, ?, ?)
+			""".stripMargin)
+		try {
+			statement.setString(1, clientName)
+			statement.setString(2, protocol)
+			statement.setString(3, contactUID)
+			statement.setInt(4, direction.getNumber)
+			statement.setTimestamp(5, new Timestamp(time.getMillis))
+			statement.setString(6, text)
+
+			Ok
+			// TODO: Catch errors.
 		} finally {
 			statement.close()
 		}
@@ -136,7 +173,8 @@ class StorageActor extends Actor with ActorLogging {
 			  | protocol varchar,
 			  | contact varchar,
 			  | direction integer,
-			  | datetime datetime
+			  | datetime datetime,
+			  | text varchar
 			  |)""".stripMargin)
 		try {
 			statement.execute()

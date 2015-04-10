@@ -6,13 +6,14 @@
 #include <boost/log/trivial.hpp>
 #include <boost/log/utility/setup/file.hpp>
 
-#include <m_langpack.h>
 #include <m_clist.h>
 #include <m_database.h>
+#include <m_langpack.h>
 #include <m_skin.h>
 
 #include "Connector.h"
 #include "MemoryUtils.h"
+#include "MessageFactory.h"
 #include "MirandaContact.h"
 #include "StringUtils.h"
 
@@ -98,40 +99,13 @@ void PluginCore::InitializeHooks()
 		auto contactHandle = reinterpret_cast<HANDLE>(wParam);
 		auto dbEventHandle = reinterpret_cast<HANDLE>(lParam);
 
-		// Prepare buffer for BLOB:
-		auto blobSize = db_event_getBlobSize(dbEventHandle);
-		auto blob = MemoryUtils::MakeUniquePtr(new unsigned char[blobSize], [](unsigned char *p){ delete[] p; });
-
-		auto eventInfo = DBEVENTINFO();
-		eventInfo.cbSize = sizeof eventInfo;
-		eventInfo.cbBlob = blobSize;
-		eventInfo.pBlob = blob.get();
-
-		if (db_event_get(dbEventHandle, &eventInfo))
+		auto message = MessageFactory::fromMirandaHandles(contactHandle, dbEventHandle);
+		if (!message)
 		{
-			throw std::exception("Invalid DB event handle");
-		}
-
-		if (eventInfo.eventType != EVENTTYPE_MESSAGE)
-		{
-			// We handle only messages here.
 			return 0;
 		}
 
-		auto protocol = eventInfo.szModule;
-		auto contact = MirandaContact(contactHandle);
-		auto contactUid = contact.uid();
-		auto wText = MemoryUtils::MakeUniquePtr(DbGetEventTextW(&eventInfo, 0), mir_free);
-		auto direction = eventInfo.flags & DBEF_SENT ? Message_Direction_OUTGOING : Message_Direction_INCOMING;
-
-		auto message = Message();
-		message.set_timestamp(eventInfo.timestamp);
-		message.set_protocol(eventInfo.szModule);
-		message.set_user_id(StringUtils::EncodeAsUTF8(contactUid));
-		message.set_text(StringUtils::EncodeAsUTF8(std::wstring(wText.get())));
-		message.set_direction(direction);
-
-		core->_connector->queueMessage(message);
+		core->_connector->queueMessage(message.get());
 
 		return 0;
 	};
