@@ -1,6 +1,8 @@
 Styx history synchronizer
 =========================
 
+Project status: development.
+
 # Protocol
 Server and client uses custom protocol based on protobuf. To generate protobuf
 code for client and server, use `styx-messages/Build-Protobuf.ps1` file.
