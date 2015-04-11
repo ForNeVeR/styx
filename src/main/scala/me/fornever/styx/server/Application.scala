@@ -1,4 +1,4 @@
-package ru.org.codingteam.styx.server
+package me.fornever.styx.server
 
 import akka.actor.{Props, ActorSystem}
 

@@ -2,7 +2,7 @@ name := "styx-server"
 
 version := "0.1-SNAPSHOT"
 
-mainClass in (Compile, run) := Some("ru.org.codingteam.styx.server.Application")
+mainClass in (Compile, run) := Some("me.fornever.styx.server.Application")
 
 scalaVersion := "2.10.3"
 

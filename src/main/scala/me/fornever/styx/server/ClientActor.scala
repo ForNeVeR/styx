@@ -1,7 +1,15 @@
-package ru.org.codingteam.styx.server
+package me.fornever.styx.server
 
 import akka.actor.{ActorRef, Actor, ActorLogging}
 import akka.pattern.ask
+import me.fornever.styx.ChunkHashDef.ChunkHash
+import me.fornever.styx.ChunkHashResultDef.ChunkHashResult
+import me.fornever.styx.ErrorDef.Error
+import me.fornever.styx.LoginDef.Login
+import me.fornever.styx.LoginResultDef.LoginResult
+import me.fornever.styx.MessageDef.Message
+import me.fornever.styx.MessageResultDef.MessageResult
+import me.fornever.styx.data.MessageInfo
 import ru.org.codingteam.styx.LoginDef.Login
 import ru.org.codingteam.styx.LoginResultDef.LoginResult
 import ru.org.codingteam.styx.ChunkHashDef.ChunkHash
@@ -95,7 +103,7 @@ class ClientActor(val storage: ActorRef) extends Actor with ActorLogging {
 	}
 
 	private def createError(reason: String) =
-		ru.org.codingteam.styx.ErrorDef.Error.newBuilder().setReason(reason).build()
+		Error.newBuilder().setReason(reason).build()
 
 	private def calculateHash(messages: Iterable[MessageInfo]): Long = {
 		// TODO: Use some more complex hash composition technique.

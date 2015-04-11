@@ -1,4 +1,4 @@
-package ru.org.codingteam.styx.server
+package me.fornever.styx.server
 
 abstract sealed class SynchronizerState
 case object NotConnected extends SynchronizerState

@@ -1,6 +1,7 @@
-package ru.org.codingteam.styx.server
+package me.fornever.styx.server
 
 import akka.actor.{ActorLogging, Actor}
+import me.fornever.styx.data.MessageInfo
 import org.h2.jdbcx.JdbcConnectionPool
 import java.sql.{Timestamp, PreparedStatement, Connection}
 import org.joda.time.DateTime

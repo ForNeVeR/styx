@@ -1,4 +1,4 @@
-package ru.org.codingteam.styx.data
+package me.fornever.styx.data
 
 import ru.org.codingteam.styx.MessageDef.Message.Direction
 import org.joda.time.DateTime
