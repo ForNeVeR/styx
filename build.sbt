@@ -4,7 +4,7 @@ version := "0.1-SNAPSHOT"
 
 mainClass in (Compile, run) := Some("me.fornever.styx.server.Application")
 
-scalaVersion := "2.10.3"
+scalaVersion := "2.11.6"
 
 scalacOptions ++= Seq("-unchecked", "-deprecation", "-feature")
 
