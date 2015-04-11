@@ -1,5 +1,0 @@
-package ru.org.codingteam.styx;
-
-message LoginResult {
-	required bool logged = 1;
-}

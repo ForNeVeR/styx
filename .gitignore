@@ -1,5 +1,4 @@
 /.idea/
-/src/main/java/
 /project/target/
 /target/
 *.db
