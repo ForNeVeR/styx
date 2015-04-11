@@ -3,7 +3,7 @@ Styx
 
 [![Pull request statistics](http://issuestats.com/github/ForNeVeR/styx/badge/pr?style=flat-square)](http://www.issuestats.com/github/ForNeVeR/styx)
 [![Issue statistics](http://issuestats.com/github/ForNeVeR/styx/badge/issue?style=flat-square)](http://www.issuestats.com/github/ForNeVeR/styx)
-[![Build status](https://travis-ci.org/ForNeVeR/styx.png?branch=develop)](https://travis-ci.org/ForNeVeR/styx)
+[![Build Status](https://travis-ci.org/ForNeVeR/styx.svg?branch=develop)](https://travis-ci.org/ForNeVeR/styx)
 
 Project status: development.
 
